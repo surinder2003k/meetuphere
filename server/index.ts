@@ -1,10 +1,25 @@
 import { createServer } from 'http'
 import { Server } from 'socket.io'
 
-const httpServer = createServer()
+const httpServer = createServer((req, res) => {
+  if (req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.end('OK')
+    return
+  }
+  res.writeHead(404)
+  res.end()
+})
+
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'https://meetuphere.vercel.app',
+]
 const io = new Server(httpServer, {
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -143,7 +158,7 @@ io.on('connection', (socket) => {
   })
 })
 
-const PORT = 3001
-httpServer.listen(PORT, () => {
+const PORT = process.env.PORT || 3001
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`[Server] VibeLink signaling server running on port ${PORT}`)
 })
