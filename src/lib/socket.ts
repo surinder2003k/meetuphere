@@ -7,13 +7,12 @@ let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null
 
 export function getSocket() {
   if (!socket) {
-    let serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
-
-    // Production custom server serves both Next.js + Socket.io on the same port.
-    // Dev mode runs separate servers; set NEXT_PUBLIC_SERVER_URL=http://localhost:3001
-    if (typeof window !== 'undefined' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
-      serverUrl = window.location.origin
-    }
+    // Use NEXT_PUBLIC_SERVER_URL env var if set (production: Render/Railway server)
+    // Otherwise default to localhost:3001 (dev mode) or same origin (custom server)
+    const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 
+      (typeof window !== 'undefined' && window.location.hostname === 'localhost'
+        ? 'http://localhost:3001'
+        : window.location.origin)
 
     socket = io(serverUrl, {
       transports: ['websocket', 'polling'],

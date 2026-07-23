@@ -1,10 +1,10 @@
-# VibeLink.live
+# MeetUpHere
 
 Random video chat platform — connect with strangers instantly via WebRTC. Think Omegle, but modern.
 
 ## Live Demo
 
-[VibeLink.live](https://vibelink.live)
+[meetuphere.vercel.app](https://meetuphere.vercel.app)
 
 ## Features
 

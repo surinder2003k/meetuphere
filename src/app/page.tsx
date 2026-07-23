@@ -223,7 +223,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center gap-2 pointer-events-auto">
-            <span className="text-sm md:text-base font-bold text-white tracking-wide">VIBELINK<span className="text-purple-400">.LIVE</span></span>
+            <span className="text-sm md:text-base font-bold text-white tracking-wide">MEETUP<span className="text-purple-400">.HERE</span></span>
           </div>
           <div className="pointer-events-auto">
             <ProfilePopover
