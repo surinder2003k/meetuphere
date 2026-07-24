@@ -6,7 +6,7 @@ import RemoteVideo from './RemoteVideo'
 import SelfVideo from './SelfVideo'
 import CallControls from './CallControls'
 import ReportModal from './ReportModal'
-import { Send, Mic, MicOff, Video, VideoOff, PhoneOff, SkipForward } from 'lucide-react'
+import { Send, Mic, MicOff, Video, VideoOff, PhoneOff, SkipForward, MonitorUp } from 'lucide-react'
 import type { ChatMessage, UserProfile } from '@/types'
 
 interface VideoCallProps {
@@ -26,6 +26,8 @@ interface VideoCallProps {
   onSendChat: (content: string) => void
   onTyping: () => void
   onReport: (reason: string) => void
+  onScreenShare: () => void
+  onStopScreenShare: () => void
 }
 
 export default function VideoCall({
@@ -45,11 +47,14 @@ export default function VideoCall({
   onSendChat,
   onTyping,
   onReport,
+  onScreenShare,
+  onStopScreenShare,
 }: VideoCallProps) {
   const [showReport, setShowReport] = useState(false)
   const [callDuration, setCallDuration] = useState(0)
   const [swapped, setSwapped] = useState(false)
   const [input, setInput] = useState('')
+  const [isScreenSharing, setIsScreenSharing] = useState(false)
   const swipeRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -78,6 +83,16 @@ export default function VideoCall({
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
+    }
+  }
+
+  const handleScreenShareToggle = async () => {
+    if (isScreenSharing) {
+      onStopScreenShare()
+      setIsScreenSharing(false)
+    } else {
+      const success = await onScreenShare()
+      if (success !== false) setIsScreenSharing(true)
     }
   }
 
@@ -122,14 +137,23 @@ export default function VideoCall({
           />
         )}
 
-        {/* Self video - click to swap */}
-        <div
-          onClick={() => setSwapped(!swapped)}
-          className="absolute z-20 cursor-pointer active:scale-95 transition-transform"
-          style={{ top: '52px', right: '12px', width: swapped ? '120px' : undefined, height: swapped ? '160px' : undefined }}
-        >
-          {swapped ? (
-            <div className="w-[120px] h-[160px] md:w-[120px] md:h-[160px] rounded-2xl overflow-hidden border-2 border-white/30 shadow-2xl">
+        {/* Self video - click to swap (not swapped) */}
+        {!swapped && (
+          <SelfVideo stream={localStream} isVideoOn={isVideoOn} isMicOn={isMicOn} onClick={() => setSwapped(true)} />
+        )}
+
+        {/* Remote video in corner - click to swap back (swapped) */}
+        {swapped && (
+          <>
+            {/* Mobile */}
+            <motion.div
+              className="absolute z-20 md:hidden rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl cursor-pointer active:scale-95 transition-transform"
+              style={{ top: '52px', right: '12px', width: 90, height: 120 }}
+              onClick={() => setSwapped(false)}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', damping: 25 }}
+            >
               <RemoteVideo
                 stream={remoteStream}
                 peerName={peerName}
@@ -137,22 +161,39 @@ export default function VideoCall({
                 isVideoOn={true}
                 callDuration={callDuration}
               />
-            </div>
-          ) : (
-            <SelfVideo stream={localStream} isVideoOn={isVideoOn} isMicOn={isMicOn} onClick={() => setSwapped(true)} />
-          )}
-        </div>
+            </motion.div>
+            {/* Desktop */}
+            <motion.div
+              className="absolute z-20 hidden md:block rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl cursor-pointer hover:scale-105 transition-transform"
+              style={{ bottom: '80px', left: '16px', width: 120, height: 160 }}
+              onClick={() => setSwapped(false)}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ type: 'spring', damping: 25 }}
+            >
+              <RemoteVideo
+                stream={remoteStream}
+                peerName={peerName}
+                peerGender={peerGender}
+                isVideoOn={true}
+                callDuration={callDuration}
+              />
+            </motion.div>
+          </>
+        )}
 
         {/* Desktop controls */}
         <div className="hidden md:block absolute bottom-0 left-0 right-0 z-10">
           <CallControls
             isMicOn={isMicOn}
             isVideoOn={isVideoOn}
+            isScreenSharing={isScreenSharing}
             onToggleMic={onToggleMic}
             onToggleVideo={onToggleVideo}
             onEndCall={onEndCall}
             onSkip={onSkip}
             onReport={() => setShowReport(true)}
+            onScreenShare={handleScreenShareToggle}
           />
         </div>
       </motion.div>
@@ -218,6 +259,9 @@ export default function VideoCall({
             </button>
             <button onClick={onToggleVideo} style={{ width: 30, height: 30, borderRadius: '50%', background: isVideoOn ? 'rgba(255,255,255,0.1)' : 'rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: 'none', cursor: 'pointer' }}>
               {isVideoOn ? <Video style={{ width: 14, height: 14, color: 'rgba(255,255,255,0.7)' }} /> : <VideoOff style={{ width: 14, height: 14, color: '#ef4444' }} />}
+            </button>
+            <button onClick={handleScreenShareToggle} style={{ width: 30, height: 30, borderRadius: '50%', background: isScreenSharing ? 'rgba(6,182,212,0.25)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: 'none', cursor: 'pointer' }}>
+              <MonitorUp style={{ width: 14, height: 14, color: isScreenSharing ? '#06b6d4' : 'rgba(255,255,255,0.7)' }} />
             </button>
             <button onClick={onSkip} style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg, #9333ea, #db2777)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(147,51,234,0.3)' }}>
               <SkipForward style={{ width: 16, height: 16, color: 'white' }} />

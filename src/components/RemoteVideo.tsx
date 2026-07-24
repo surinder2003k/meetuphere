@@ -40,7 +40,7 @@ export default function RemoteVideo({
           ref={videoRef}
           autoPlay
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0a0a0f] to-[#12121a]">

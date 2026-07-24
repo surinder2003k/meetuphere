@@ -203,6 +203,48 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
     pendingSignals.current = []
   }, [])
 
+  const startScreenShare = useCallback(async (): Promise<boolean> => {
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: 'always' },
+        audio: false,
+      })
+      const screenTrack = screenStream.getVideoTracks()[0]
+      if (!screenTrack) return false
+
+      const pc = (peerRef.current as any)?._pc as RTCPeerConnection | undefined
+      if (!pc) return false
+
+      const sender = pc.getSenders().find((s: RTCRtpSender) => s.track?.kind === 'video')
+      if (!sender) return false
+
+      await sender.replaceTrack(screenTrack)
+
+      screenTrack.onended = () => {
+        stopScreenShare()
+      }
+
+      return true
+    } catch (err) {
+      console.error('[WebRTC] Screen share failed:', err)
+      return false
+    }
+  }, [])
+
+  const stopScreenShare = useCallback(async () => {
+    const stream = localStreamRef.current
+    const videoTrack = stream?.getVideoTracks()[0]
+    if (!videoTrack) return
+
+    const pc = (peerRef.current as any)?._pc as RTCPeerConnection | undefined
+    if (!pc) return
+
+    const sender = pc.getSenders().find((s: RTCRtpSender) => s.track?.kind === 'video')
+    if (!sender) return
+
+    await sender.replaceTrack(videoTrack)
+  }, [])
+
   return {
     remoteStream,
     peerName,
@@ -216,5 +258,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
     sendChatMessage,
     sendTyping,
     cleanup,
+    startScreenShare,
+    stopScreenShare,
   }
 }

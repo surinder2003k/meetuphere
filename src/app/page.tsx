@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import EntryModal from '@/components/EntryModal'
 import LookingForMatch from '@/components/LookingForMatch'
@@ -16,6 +16,7 @@ export default function Home() {
   const store = useStore()
   const { stream: localStream, error: mediaError, loading: mediaLoading, requestMedia, toggleMic, toggleVideo, cleanup: cleanupMedia } = useMediaPermissions()
   const currentPeerIdRef = useRef<string | null>(null)
+  const [userCount, setUserCount] = useState(0)
 
   const handlePeerSignal = useCallback((data: { signal: any; target: string }) => {
     sendSignalRef.current(data)
@@ -40,6 +41,10 @@ export default function Home() {
   sendChatMessageRef.current = webrtc.sendChatMessage
   const sendTypingRef = useRef(webrtc.sendTyping)
   sendTypingRef.current = webrtc.sendTyping
+  const startScreenShareRef = useRef(webrtc.startScreenShare)
+  startScreenShareRef.current = webrtc.startScreenShare
+  const stopScreenShareRef = useRef(webrtc.stopScreenShare)
+  stopScreenShareRef.current = webrtc.stopScreenShare
 
   const sendSignalRef = useRef<(data: { signal: any; target: string }) => void>(() => {})
   const findPeerRef = useRef<(profile: UserProfile) => void>(() => {})
@@ -103,6 +108,10 @@ export default function Home() {
     onWaiting: useCallback((position) => {
       store.setQueuePosition(position)
     }, [store]),
+
+    onUserCount: useCallback((count) => {
+      setUserCount(count)
+    }, []),
   })
 
   useEffect(() => {
@@ -142,6 +151,18 @@ export default function Home() {
     store.setVideoOn(!store.isVideoOn)
     toggleVideo(!store.isVideoOn)
   }, [store, toggleVideo])
+
+  const handleScreenShare = useCallback(async () => {
+    const success = await startScreenShareRef.current()
+    if (!success) {
+      store.setError('Screen share failed or was cancelled')
+      setTimeout(() => store.setError(null), 3000)
+    }
+  }, [store])
+
+  const handleStopScreenShare = useCallback(() => {
+    stopScreenShareRef.current()
+  }, [])
 
   const handleEndCall = useCallback(() => {
     cleanupRef.current()
@@ -224,6 +245,11 @@ export default function Home() {
         >
           <div className="flex items-center gap-2 pointer-events-auto">
             <span className="text-sm md:text-base font-bold text-white tracking-wide">MEETUP<span className="text-purple-400">.HERE</span></span>
+            {userCount > 0 && (
+              <span className="text-[10px] md:text-xs text-white/50 bg-white/10 rounded-full px-2 py-0.5 backdrop-blur-sm">
+                {userCount} online
+              </span>
+            )}
           </div>
           <div className="pointer-events-auto">
             <ProfilePopover
@@ -333,6 +359,8 @@ export default function Home() {
             onSendChat={handleSendChat}
             onTyping={handleTyping}
             onReport={handleReport}
+            onScreenShare={handleScreenShare}
+            onStopScreenShare={handleStopScreenShare}
           />
         )}
       </div>

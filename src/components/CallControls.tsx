@@ -8,26 +8,31 @@ import {
   VideoOff,
   PhoneOff,
   SkipForward,
+  MonitorUp,
 } from 'lucide-react'
 
 interface CallControlsProps {
   isMicOn: boolean
   isVideoOn: boolean
+  isScreenSharing?: boolean
   onToggleMic: () => void
   onToggleVideo: () => void
   onEndCall: () => void
   onSkip: () => void
   onReport: () => void
+  onScreenShare?: () => void
 }
 
 export default function CallControls({
   isMicOn,
   isVideoOn,
+  isScreenSharing,
   onToggleMic,
   onToggleVideo,
   onEndCall,
   onSkip,
   onReport,
+  onScreenShare,
 }: CallControlsProps) {
   return (
     <motion.div
@@ -62,6 +67,18 @@ export default function CallControls({
         className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center text-white hover:from-purple-500 hover:to-pink-500 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-purple-600/20"
       >
         <SkipForward className="w-5 h-5" />
+      </button>
+
+      <button
+        onClick={onScreenShare}
+        title={isScreenSharing ? 'Stop Screen Share' : 'Share Screen'}
+        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+          isScreenSharing
+            ? 'bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30'
+            : 'bg-white/15 text-white hover:bg-white/20'
+        }`}
+      >
+        <MonitorUp className="w-5 h-5" />
       </button>
 
       <button

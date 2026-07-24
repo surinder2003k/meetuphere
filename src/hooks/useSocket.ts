@@ -13,6 +13,7 @@ interface UseSocketOptions {
   onPeerLeft: () => void
   onNoPeers: () => void
   onWaiting: (position: number) => void
+  onUserCount: (count: number) => void
 }
 
 export function useSocket(options: UseSocketOptions) {
@@ -59,6 +60,10 @@ export function useSocket(options: UseSocketOptions) {
 
     socket.on('waiting', (position) => {
       optionsRef.current.onWaiting(position)
+    })
+
+    socket.on('user-count', (count) => {
+      optionsRef.current.onUserCount(count)
     })
 
     socket.on('disconnect', () => {
@@ -112,6 +117,7 @@ export function useSocket(options: UseSocketOptions) {
       socketRef.current.off('peer-left')
       socketRef.current.off('no-peers')
       socketRef.current.off('waiting')
+      socketRef.current.off('user-count')
       socketRef.current.off('disconnect')
     }
     disconnectSocket()
