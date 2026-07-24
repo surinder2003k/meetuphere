@@ -19,6 +19,7 @@ export interface ServerToClientEvents {
   'peer-disconnected': () => void
   'peer-left': () => void
   'no-peers': () => void
+  'user-count': (count: number) => void
 }
 
 export interface ClientToServerEvents {
