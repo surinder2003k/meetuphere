@@ -92,7 +92,11 @@ export default function VideoCall({
       setIsScreenSharing(false)
     } else {
       const success = await onScreenShare()
-      if (success !== false) setIsScreenSharing(true)
+      if (success === true) {
+        setIsScreenSharing(true)
+      } else {
+        setIsScreenSharing(false)
+      }
     }
   }
 

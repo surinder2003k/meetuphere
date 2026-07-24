@@ -75,6 +75,7 @@ export default function Home() {
     }, []),
 
     onPeerDisconnected: useCallback(() => {
+      stopScreenShareRef.current()
       cleanupRef.current()
       store.clearMessages()
       store.setPeerId(null)
@@ -89,6 +90,7 @@ export default function Home() {
     }, [store]),
 
     onPeerLeft: useCallback(() => {
+      stopScreenShareRef.current()
       cleanupRef.current()
       store.clearMessages()
       store.setPeerId(null)
@@ -155,9 +157,10 @@ export default function Home() {
   const handleScreenShare = useCallback(async () => {
     const success = await startScreenShareRef.current()
     if (!success) {
-      store.setError('Screen share failed or was cancelled')
+      store.setError('Screen share not supported on this device or was cancelled')
       setTimeout(() => store.setError(null), 3000)
     }
+    return success
   }, [store])
 
   const handleStopScreenShare = useCallback(() => {
@@ -165,6 +168,7 @@ export default function Home() {
   }, [])
 
   const handleEndCall = useCallback(() => {
+    stopScreenShareRef.current()
     cleanupRef.current()
     socketService.skip()
     store.clearMessages()
@@ -183,6 +187,7 @@ export default function Home() {
   }, [store, socketService])
 
   const handleSkip = useCallback(() => {
+    stopScreenShareRef.current()
     cleanupRef.current()
     store.clearMessages()
     store.setPeerId(null)

@@ -23,6 +23,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
   const peerIdRef = useRef<string | null>(null)
   const connectedRef = useRef(false)
   const pendingSignals = useRef<{ signal: any; sender: string }[]>([])
+  const screenStreamRef = useRef<MediaStream | null>(null)
 
   const onPeerSignalRef = useRef(onPeerSignal)
   onPeerSignalRef.current = onPeerSignal
@@ -190,6 +191,10 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
   }, [])
 
   const cleanup = useCallback(() => {
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach((t) => t.stop())
+      screenStreamRef.current = null
+    }
     if (peerRef.current) {
       peerRef.current.destroy()
       peerRef.current = null
@@ -207,16 +212,29 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
     try {
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
-        audio: false,
       })
       const screenTrack = screenStream.getVideoTracks()[0]
       if (!screenTrack) return false
 
+      // Stop any previous screen share
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach((t) => t.stop())
+      }
+      screenStreamRef.current = screenStream
+
       const pc = (peerRef.current as any)?._pc as RTCPeerConnection | undefined
-      if (!pc) return false
+      if (!pc) {
+        screenStream.getTracks().forEach((t) => t.stop())
+        screenStreamRef.current = null
+        return false
+      }
 
       const sender = pc.getSenders().find((s: RTCRtpSender) => s.track?.kind === 'video')
-      if (!sender) return false
+      if (!sender) {
+        screenStream.getTracks().forEach((t) => t.stop())
+        screenStreamRef.current = null
+        return false
+      }
 
       await sender.replaceTrack(screenTrack)
 
@@ -232,6 +250,12 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
   }, [])
 
   const stopScreenShare = useCallback(async () => {
+    // Stop screen share tracks
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach((t) => t.stop())
+      screenStreamRef.current = null
+    }
+
     const stream = localStreamRef.current
     const videoTrack = stream?.getVideoTracks()[0]
     if (!videoTrack) return
