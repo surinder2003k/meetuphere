@@ -210,11 +210,23 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
 
   const startScreenShare = useCallback(async (): Promise<boolean> => {
     try {
+      // Check if getDisplayMedia is supported
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        console.error('[WebRTC] getDisplayMedia not supported on this device')
+        return false
+      }
+
+      console.log('[WebRTC] Requesting screen share...')
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
       })
+      console.log('[WebRTC] Screen stream obtained:', screenStream.getTracks().length, 'tracks')
       const screenTrack = screenStream.getVideoTracks()[0]
-      if (!screenTrack) return false
+      if (!screenTrack) {
+        console.error('[WebRTC] No video track in screen stream')
+        return false
+      }
+      console.log('[WebRTC] Screen track:', screenTrack.label)
 
       // Stop any previous screen share
       if (screenStreamRef.current) {
@@ -224,14 +236,15 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
 
       const peer = peerRef.current
       if (!peer) {
+        console.error('[WebRTC] No peer available for screen share')
         screenStream.getTracks().forEach((t) => t.stop())
         screenStreamRef.current = null
         return false
       }
 
-      // Use SimplePeer's replaceTrack - needs oldTrack, newTrack, and the original stream
       const localStream = localStreamRef.current
       if (!localStream) {
+        console.error('[WebRTC] No local stream for screen share')
         screenStream.getTracks().forEach((t) => t.stop())
         screenStreamRef.current = null
         return false
@@ -239,13 +252,33 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
 
       const oldVideoTrack = localStream.getVideoTracks()[0]
       if (!oldVideoTrack) {
+        console.error('[WebRTC] No video track in local stream')
         screenStream.getTracks().forEach((t) => t.stop())
         screenStreamRef.current = null
         return false
       }
 
-      // Use SimplePeer's replaceTrack API
-      peer.replaceTrack(oldVideoTrack, screenTrack, localStream)
+      // Try SimplePeer's replaceTrack first
+      try {
+        console.log('[WebRTC] Using SimplePeer replaceTrack')
+        peer.replaceTrack(oldVideoTrack, screenTrack, localStream)
+        console.log('[WebRTC] SimplePeer replaceTrack success')
+      } catch (spErr) {
+        console.error('[WebRTC] SimplePeer replaceTrack failed, trying native:', spErr)
+        // Fallback: try native RTCPeerConnection
+        const pc = (peer as any)._pc as RTCPeerConnection | undefined
+        if (pc) {
+          const sender = pc.getSenders().find((s: RTCRtpSender) => s.track?.kind === 'video')
+          if (sender) {
+            await sender.replaceTrack(screenTrack)
+            console.log('[WebRTC] Native replaceTrack success')
+          } else {
+            console.error('[WebRTC] No video sender found')
+          }
+        } else {
+          console.error('[WebRTC] No RTCPeerConnection found')
+        }
+      }
 
       screenTrack.onended = () => {
         stopScreenShare()
