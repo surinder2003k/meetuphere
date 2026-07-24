@@ -1,0 +1,19 @@
+- generic [ref=f4e1]:
+  - generic [ref=f4e3]:
+    - generic [ref=f4e4]:
+      - heading "Ready to vibe?" [level=1] [ref=f4e5]
+      - paragraph [ref=f4e6]: Join the live conversation
+    - generic [ref=f4e7]:
+      - generic [ref=f4e8]: Identity
+      - textbox "Choose a display name" [active] [ref=f4e9]
+    - generic [ref=f4e10]:
+      - generic [ref=f4e11]: Identify as
+      - generic [ref=f4e12]:
+        - button "Male" [ref=f4e13]
+        - button "Female" [ref=f4e14]
+        - button "Other" [ref=f4e15]
+        - button "Private" [ref=f4e16]
+    - paragraph [ref=f4e21]: Camera and microphone access required to start chatting.
+    - button "Start Random Chat ✨" [disabled] [ref=f4e22]
+    - paragraph [ref=f4e23]: By continuing, you agree to our Terms
+  - alert [ref=f4e25]

@@ -264,9 +264,6 @@ export default function VideoCall({
             <button onClick={onToggleVideo} style={{ width: 30, height: 30, borderRadius: '50%', background: isVideoOn ? 'rgba(255,255,255,0.1)' : 'rgba(239,68,68,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: 'none', cursor: 'pointer' }}>
               {isVideoOn ? <Video style={{ width: 14, height: 14, color: 'rgba(255,255,255,0.7)' }} /> : <VideoOff style={{ width: 14, height: 14, color: '#ef4444' }} />}
             </button>
-            <button onClick={handleScreenShareToggle} style={{ width: 30, height: 30, borderRadius: '50%', background: isScreenSharing ? 'rgba(6,182,212,0.25)' : 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: 'none', cursor: 'pointer' }}>
-              <MonitorUp style={{ width: 14, height: 14, color: isScreenSharing ? '#06b6d4' : 'rgba(255,255,255,0.7)' }} />
-            </button>
             <button onClick={onSkip} style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg, #9333ea, #db2777)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(147,51,234,0.3)' }}>
               <SkipForward style={{ width: 16, height: 16, color: 'white' }} />
             </button>

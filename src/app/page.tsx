@@ -75,7 +75,7 @@ export default function Home() {
     }, []),
 
     onPeerDisconnected: useCallback(() => {
-      stopScreenShareRef.current()
+      try { stopScreenShareRef.current() } catch {}
       cleanupRef.current()
       store.clearMessages()
       store.setPeerId(null)
@@ -90,7 +90,7 @@ export default function Home() {
     }, [store]),
 
     onPeerLeft: useCallback(() => {
-      stopScreenShareRef.current()
+      try { stopScreenShareRef.current() } catch {}
       cleanupRef.current()
       store.clearMessages()
       store.setPeerId(null)
@@ -168,7 +168,7 @@ export default function Home() {
   }, [])
 
   const handleEndCall = useCallback(() => {
-    stopScreenShareRef.current()
+    try { stopScreenShareRef.current() } catch {}
     cleanupRef.current()
     socketService.skip()
     store.clearMessages()
