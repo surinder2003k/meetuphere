@@ -206,7 +206,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
   const startScreenShare = useCallback(async (): Promise<boolean> => {
     try {
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { cursor: 'always' },
+        video: true,
         audio: false,
       })
       const screenTrack = screenStream.getVideoTracks()[0]
