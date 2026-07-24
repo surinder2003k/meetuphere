@@ -26,7 +26,7 @@ interface VideoCallProps {
   onSendChat: (content: string) => void
   onTyping: () => void
   onReport: (reason: string) => void
-  onScreenShare: () => void
+  onScreenShare: () => Promise<boolean | void>
   onStopScreenShare: () => void
 }
 
