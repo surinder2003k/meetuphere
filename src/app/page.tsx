@@ -157,7 +157,7 @@ export default function Home() {
   const handleScreenShare = useCallback(async () => {
     const success = await startScreenShareRef.current()
     if (!success) {
-      store.setError('Screen share not supported on this device or was cancelled')
+      store.setError('Screen share cancelled or not available')
       setTimeout(() => store.setError(null), 3000)
     }
     return success

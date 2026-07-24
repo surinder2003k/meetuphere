@@ -222,21 +222,30 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
       }
       screenStreamRef.current = screenStream
 
-      const pc = (peerRef.current as any)?._pc as RTCPeerConnection | undefined
-      if (!pc) {
+      const peer = peerRef.current
+      if (!peer) {
         screenStream.getTracks().forEach((t) => t.stop())
         screenStreamRef.current = null
         return false
       }
 
-      const sender = pc.getSenders().find((s: RTCRtpSender) => s.track?.kind === 'video')
-      if (!sender) {
+      // Use SimplePeer's replaceTrack - needs oldTrack, newTrack, and the original stream
+      const localStream = localStreamRef.current
+      if (!localStream) {
         screenStream.getTracks().forEach((t) => t.stop())
         screenStreamRef.current = null
         return false
       }
 
-      await sender.replaceTrack(screenTrack)
+      const oldVideoTrack = localStream.getVideoTracks()[0]
+      if (!oldVideoTrack) {
+        screenStream.getTracks().forEach((t) => t.stop())
+        screenStreamRef.current = null
+        return false
+      }
+
+      // Use SimplePeer's replaceTrack API
+      peer.replaceTrack(oldVideoTrack, screenTrack, localStream)
 
       screenTrack.onended = () => {
         stopScreenShare()
@@ -256,17 +265,13 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
       screenStreamRef.current = null
     }
 
+    const peer = peerRef.current
     const stream = localStreamRef.current
     const videoTrack = stream?.getVideoTracks()[0]
-    if (!videoTrack) return
+    if (!peer || !videoTrack || !stream) return
 
-    const pc = (peerRef.current as any)?._pc as RTCPeerConnection | undefined
-    if (!pc) return
-
-    const sender = pc.getSenders().find((s: RTCRtpSender) => s.track?.kind === 'video')
-    if (!sender) return
-
-    await sender.replaceTrack(videoTrack)
+    // Use SimplePeer's replaceTrack to restore camera
+    peer.replaceTrack(videoTrack, videoTrack, stream)
   }, [])
 
   return {
