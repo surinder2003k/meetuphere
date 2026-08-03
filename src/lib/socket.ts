@@ -12,7 +12,7 @@ export function getSocket() {
     const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 
       (typeof window !== 'undefined' && window.location.hostname === 'localhost'
         ? 'http://localhost:3001'
-        : window.location.origin)
+        : 'https://meetuphere-socket.onrender.com')
 
     socket = io(serverUrl, {
       transports: ['websocket', 'polling'],
