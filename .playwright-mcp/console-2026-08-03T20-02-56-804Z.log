@@ -1,0 +1,26 @@
+[  104066ms] [LOG] [App] Matched: {peerId: fV6Cz_RltDprb7zTAAAN, initiator: false, myId: c1PH2jx_YfjfTHC-AAAL, raw: Object} @ :4
+[  104066ms] [LOG] [WebRTC] Creating SimplePeer: {initiator: false, targetPeerId: fV6Cz_RltDprb7zTAAAN, tracks: 2} @ :4
+[  104079ms] [LOG] [WebRTC] Received profile: {type: profile, name: Leo, gender: male} @ :4
+[  104474ms] [LOG] [WebRTC] Receiving signal: offer from fV6Cz_RltDprb7zTAAAN @ :4
+[  104477ms] [LOG] [WebRTC] Received remote stream! @ :4
+[  104515ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  104519ms] [LOG] [WebRTC] Sending signal: answer -> fV6Cz_RltDprb7zTAAAN @ :4
+[  104521ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  104522ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  104523ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  104524ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  104526ms] [LOG] [WebRTC] Sending signal: candidate -> fV6Cz_RltDprb7zTAAAN @ :4
+[  104528ms] [LOG] [WebRTC] Sending signal: candidate -> fV6Cz_RltDprb7zTAAAN @ :4
+[  104544ms] [LOG] [WebRTC] Sending signal: candidate -> fV6Cz_RltDprb7zTAAAN @ :4
+[  105020ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105026ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105028ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105029ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105030ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105032ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105034ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105035ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105036ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105038ms] [LOG] [WebRTC] Receiving signal: candidate from fV6Cz_RltDprb7zTAAAN @ :4
+[  105041ms] [LOG] [WebRTC] Data channel connected! @ :4
+[  110346ms] [LOG] [WebRTC] Peer closed @ :4

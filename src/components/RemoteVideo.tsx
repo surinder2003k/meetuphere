@@ -44,12 +44,12 @@ export default function RemoteVideo({
         />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0a0a0f] to-[#12121a]">
-          <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-4">
-            <User className="w-12 h-12 text-white/20" />
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-4">
+            <User className="w-12 h-12 text-white/40" />
           </div>
-          <p className="text-white/50 text-lg font-medium">{peerName}</p>
-          <p className="text-white/25 text-sm capitalize">{peerGender.replace('-', ' ')}</p>
-          <div className="mt-3 flex items-center gap-2 text-white/20">
+          <p className="text-white text-lg font-semibold">{peerName}</p>
+          <p className="text-white/40 text-sm capitalize">{peerGender.replace('-', ' ')}</p>
+          <div className="mt-3 flex items-center gap-2 text-white/30">
             <VideoOff className="w-4 h-4" />
             <span className="text-xs">Camera is off</span>
           </div>
@@ -57,18 +57,18 @@ export default function RemoteVideo({
       )}
 
       {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/70 via-black/30 to-transparent p-4 z-10">
+      <div className="absolute top-0 left-0 right-0 bg-gradient-to-b from-black/80 via-black/50 to-transparent p-4 z-10">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-full px-3 py-1.5">
             <motion.div
-              className="w-2 h-2 rounded-full bg-green-400"
+              className="w-2.5 h-2.5 rounded-full bg-green-400"
               animate={{ opacity: [1, 0.3, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-white font-medium text-sm">{peerName}</span>
-            <span className="text-white/40 text-xs capitalize">({peerGender.replace('-', ' ')})</span>
+            <span className="text-white font-semibold text-sm">{peerName}</span>
+            <span className="text-white/50 text-xs capitalize">({peerGender.replace('-', ' ')})</span>
           </div>
-          <span className="text-white/50 text-xs bg-white/10 backdrop-blur-sm px-2.5 py-1 rounded-full">
+          <span className="text-white/70 text-xs bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full font-medium">
             {formatDuration(callDuration)}
           </span>
         </div>

@@ -1,0 +1,27 @@
+- generic [active] [ref=f4e1]:
+  - generic:
+    - generic [ref=f4e2]:
+      - generic [ref=f4e3]: MEETUP.HERE
+      - generic [ref=f4e16]: 2 online
+    - button [ref=f4e5]
+  - generic [ref=f4e35]:
+    - generic [ref=f4e36]:
+      - generic [ref=f4e41] [cursor=pointer]:
+        - generic [ref=f4e42]:
+          - generic [ref=f4e44]: Leo
+          - generic [ref=f4e45]: (male)
+        - generic [ref=f4e46]: 00:02
+      - generic [ref=f4e47] [cursor=pointer]: YOU
+      - generic [ref=f4e54]:
+        - button "Mute" [ref=f4e55]
+        - button "End Call" [ref=f4e59]
+        - button "Skip" [ref=f4e64]
+        - button "Share Screen" [ref=f4e67]
+        - button "Hide Camera" [ref=f4e71]
+    - generic [ref=f4e75]:
+      - generic [ref=f4e76]: Chat
+      - generic [ref=f4e78]: Connected! Say hi to your new vibe.
+      - generic [ref=f4e83]:
+        - textbox "Message..." [ref=f4e84]
+        - button [disabled] [ref=f4e85]
+  - alert [ref=f4e15]

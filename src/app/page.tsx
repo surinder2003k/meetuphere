@@ -293,7 +293,7 @@ export default function Home() {
 
       <div className="h-full w-full">
         {store.callState === 'searching' && (
-          <LookingForMatch queuePosition={store.queuePosition} />
+          <LookingForMatch queuePosition={store.queuePosition} localStream={localStream} />
         )}
 
         {store.callState === 'entering' && (
