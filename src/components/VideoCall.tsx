@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, PanInfo } from 'framer-motion'
 import RemoteVideo from './RemoteVideo'
 import CallControls from './CallControls'
@@ -56,6 +56,13 @@ export default function VideoCall({
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const swipeRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const localVideoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    if (localVideoRef.current && localStream) {
+      localVideoRef.current.srcObject = localStream
+    }
+  }, [localStream])
 
   useEffect(() => {
     const interval = setInterval(() => setCallDuration((c) => c + 1), 1000)
@@ -142,7 +149,7 @@ export default function VideoCall({
         >
           {isVideoOn && localStream ? (
             <video
-              ref={(el) => { if (el) el.srcObject = localStream }}
+              ref={localVideoRef}
               autoPlay playsInline muted
               className="w-full h-full object-cover"
             />
