@@ -41,7 +41,7 @@ app.prepare().then(() => {
 
   const io = new Server(httpServer, {
     cors: {
-      origin: '*',
+      origin: ['http://localhost:3000', 'http://localhost:3001', 'https://meetuphere.vercel.app'],
       methods: ['GET', 'POST'],
     },
   })

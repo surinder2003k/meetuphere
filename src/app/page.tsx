@@ -22,6 +22,14 @@ export default function Home() {
     sendSignalRef.current(data)
   }, [])
 
+  const [screenShareEndedVersion, setScreenShareEndedVersion] = useState(0)
+
+  const handleScreenShareEnded = useCallback(() => {
+    setScreenShareEndedVersion((v) => v + 1)
+    store.setError('Screen share stopped')
+    setTimeout(() => store.setError(null), 2000)
+  }, [store])
+
   const webrtc = useWebRTC({
     localStream,
     profile: store.profile || { name: 'You', gender: 'other' },
@@ -29,6 +37,7 @@ export default function Home() {
     onConnected: useCallback(() => {
       store.setCallState('connected')
     }, [store]),
+    onScreenShareEnded: handleScreenShareEnded,
   })
 
   const createPeerRef = useRef(webrtc.createPeer)
@@ -75,11 +84,14 @@ export default function Home() {
     }, []),
 
     onPeerDisconnected: useCallback(() => {
+      if (!currentPeerIdRef.current) return
       try { stopScreenShareRef.current() } catch {}
       cleanupRef.current()
       store.clearMessages()
       store.setPeerId(null)
       store.setQueuePosition(null)
+      store.setMicOn(true)
+      store.setVideoOn(true)
       currentPeerIdRef.current = null
       store.setError('Your match disconnected. Finding new vibe...')
       setTimeout(() => store.setError(null), 2000)
@@ -90,11 +102,14 @@ export default function Home() {
     }, [store]),
 
     onPeerLeft: useCallback(() => {
+      if (!currentPeerIdRef.current) return
       try { stopScreenShareRef.current() } catch {}
       cleanupRef.current()
       store.clearMessages()
       store.setPeerId(null)
       store.setQueuePosition(null)
+      store.setMicOn(true)
+      store.setVideoOn(true)
       currentPeerIdRef.current = null
       store.setCallState('searching')
       if (store.profile) {
@@ -132,6 +147,12 @@ export default function Home() {
 
   useEffect(() => {
     socketService.connect()
+    return () => {
+      try { stopScreenShareRef.current() } catch {}
+      cleanupRef.current()
+      cleanupMedia()
+      socketService.disconnect()
+    }
   }, [])
 
   const handleProfileSubmit = useCallback(async (profile: UserProfile) => {
@@ -170,6 +191,7 @@ export default function Home() {
   const handleEndCall = useCallback(() => {
     try { stopScreenShareRef.current() } catch {}
     cleanupRef.current()
+    currentPeerIdRef.current = null
     socketService.skip()
     store.clearMessages()
     store.setPeerId(null)
@@ -177,21 +199,24 @@ export default function Home() {
     store.setMicOn(true)
     store.setVideoOn(true)
     store.setError(null)
-    currentPeerIdRef.current = null
     store.setCallState('idle')
   }, [socketService, store])
 
   const handleSearchAgain = useCallback(() => {
+    store.setMicOn(true)
+    store.setVideoOn(true)
     store.setCallState('searching')
     socketService.findPeer(store.profile!)
   }, [store, socketService])
 
   const handleSkip = useCallback(() => {
-    stopScreenShareRef.current()
+    try { stopScreenShareRef.current() } catch {}
     cleanupRef.current()
     store.clearMessages()
     store.setPeerId(null)
     store.setQueuePosition(null)
+    store.setMicOn(true)
+    store.setVideoOn(true)
     currentPeerIdRef.current = null
     socketService.skip()
     store.setCallState('searching')
@@ -366,6 +391,7 @@ export default function Home() {
             onReport={handleReport}
             onScreenShare={handleScreenShare}
             onStopScreenShare={handleStopScreenShare}
+            screenShareEndedVersion={screenShareEndedVersion}
           />
         )}
       </div>

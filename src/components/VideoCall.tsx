@@ -27,6 +27,7 @@ interface VideoCallProps {
   onReport: (reason: string) => void
   onScreenShare: () => Promise<boolean | void>
   onStopScreenShare: () => void
+  screenShareEndedVersion?: number
 }
 
 export default function VideoCall({
@@ -48,6 +49,7 @@ export default function VideoCall({
   onReport,
   onScreenShare,
   onStopScreenShare,
+  screenShareEndedVersion,
 }: VideoCallProps) {
   const [showReport, setShowReport] = useState(false)
   const [callDuration, setCallDuration] = useState(0)
@@ -105,6 +107,12 @@ export default function VideoCall({
       }
     }
   }
+
+  useEffect(() => {
+    if (screenShareEndedVersion) {
+      setIsScreenSharing(false)
+    }
+  }, [screenShareEndedVersion])
 
   const totalVisible = messages.length
 

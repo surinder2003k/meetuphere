@@ -9,9 +9,10 @@ interface WebRTCHooksOptions {
   profile: UserProfile
   onPeerSignal: (data: { signal: any; target: string }) => void
   onConnected: () => void
+  onScreenShareEnded?: () => void
 }
 
-export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: WebRTCHooksOptions) {
+export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onScreenShareEnded }: WebRTCHooksOptions) {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null)
   const [peerName, setPeerName] = useState('Stranger')
   const [peerGender, setPeerGender] = useState('unknown')
@@ -24,11 +25,14 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
   const connectedRef = useRef(false)
   const pendingSignals = useRef<{ signal: any; sender: string }[]>([])
   const screenStreamRef = useRef<MediaStream | null>(null)
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const onPeerSignalRef = useRef(onPeerSignal)
   onPeerSignalRef.current = onPeerSignal
   const onConnectedRef = useRef(onConnected)
   onConnectedRef.current = onConnected
+  const onScreenShareEndedRef = useRef(onScreenShareEnded)
+  onScreenShareEndedRef.current = onScreenShareEnded
   const localStreamRef = useRef(localStream)
   localStreamRef.current = localStream
   const profileRef = useRef(profile)
@@ -96,7 +100,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
         content: 'Connected! Say hi to your new vibe.',
         timestamp: Date.now(),
       }
-      setMessages([msg])
+      setMessages((prev) => [...prev, msg])
     })
 
     peer.on('data', (chunk: any) => {
@@ -107,8 +111,11 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
           setMessages((prev) => [...prev, msg])
         } else if (parsed.type === 'typing') {
           setPeerTyping(true)
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+          typingTimeoutRef.current = setTimeout(() => setPeerTyping(false), 5000)
         } else if (parsed.type === 'typing-end') {
           setPeerTyping(false)
+          if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
         }
       } catch {}
     })
@@ -116,7 +123,12 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
     peer.on('close', () => {
       console.log('[WebRTC] Peer closed')
       setRemoteStream(null)
+      setPeerName('Stranger')
+      setPeerGender('unknown')
+      setPeerTyping(false)
       peerRef.current = null
+      peerIdRef.current = null
+      connectedRef.current = false
     })
 
     peer.on('error', (err) => {
@@ -183,7 +195,8 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
   const sendTyping = useCallback((target: string) => {
     if (peerRef.current?.connected) {
       peerRef.current.send(JSON.stringify({ type: 'typing', data: { sender: profileRef.current.name } }))
-      setTimeout(() => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+      typingTimeoutRef.current = setTimeout(() => {
         if (peerRef.current?.connected) {
           peerRef.current.send(JSON.stringify({ type: 'typing-end', data: {} }))
         }
@@ -192,6 +205,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
   }, [])
 
   const cleanup = useCallback(() => {
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     if (screenStreamRef.current) {
       screenStreamRef.current.getTracks().forEach((t) => t.stop())
       screenStreamRef.current = null
@@ -285,6 +299,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
 
       screenTrack.onended = () => {
         stopScreenShare()
+        onScreenShareEndedRef.current?.()
       }
 
       return true

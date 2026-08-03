@@ -13,8 +13,12 @@ export function useMediaPermissions() {
   const streamRef = useRef<MediaStream | null>(null)
 
   const requestMedia = useCallback(async () => {
+    if (state.loading) return streamRef.current
     setState((s) => ({ ...s, loading: true, error: null }))
     try {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((t) => t.stop())
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },

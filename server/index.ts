@@ -108,6 +108,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('signal', (data: { signal: any; target: string }) => {
+    if (activePairs.get(socket.id) !== data.target) return
     io.to(data.target).emit('signal', {
       signal: data.signal,
       sender: socket.id,
@@ -115,6 +116,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('chat-message', (data: { content: string; target: string }) => {
+    if (activePairs.get(socket.id) !== data.target) return
     const msg = {
       id: crypto.randomUUID(),
       sender: 'stranger',
@@ -125,6 +127,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('typing', (data: { target: string }) => {
+    if (activePairs.get(socket.id) !== data.target) return
     io.to(data.target).emit('typing', { sender: socket.id })
   })
 
@@ -147,7 +150,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('disconnect', () => {
-    connectedCount--
+    connectedCount = Math.max(0, connectedCount - 1)
     broadcastUserCount()
     console.log(`[-] Disconnected: ${socket.id} (online: ${connectedCount})`)
 
