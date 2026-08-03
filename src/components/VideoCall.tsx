@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, PanInfo } from 'framer-motion'
 import RemoteVideo from './RemoteVideo'
-import SelfVideo from './SelfVideo'
 import CallControls from './CallControls'
 import ReportModal from './ReportModal'
 import { Send, Mic, MicOff, Video, VideoOff, PhoneOff, SkipForward, MonitorUp } from 'lucide-react'
@@ -114,24 +113,15 @@ export default function VideoCall({
         onDragEnd={handleSwipe}
         whileDrag={{ scale: 0.98 }}
       >
-        {/* Main video - swapable */}
-        {swapped ? (
-          <div className="relative w-full h-full bg-black">
-            {localStream && isVideoOn ? (
-              <video
-                ref={(el) => { if (el) el.srcObject = localStream }}
-                autoPlay playsInline muted
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-[#0a0a0f]">
-                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center">
-                  <span className="text-white/30 text-lg font-bold">YOU</span>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
+        {/* ═══ REMOTE VIDEO — full screen when !swapped, corner when swapped ═══ */}
+        <div
+          className="absolute z-10 transition-all duration-300 ease-in-out cursor-pointer"
+          style={swapped
+            ? { top: 12, right: 12, width: 120, height: 160, borderRadius: 16, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }
+            : { inset: 0 }
+          }
+          onClick={() => setSwapped(!swapped)}
+        >
           <RemoteVideo
             stream={remoteStream}
             peerName={peerName}
@@ -139,52 +129,38 @@ export default function VideoCall({
             isVideoOn={true}
             callDuration={callDuration}
           />
-        )}
+        </div>
 
-        {/* Self video - click to swap (not swapped) */}
-        {!swapped && (
-          <SelfVideo stream={localStream} isVideoOn={isVideoOn} isMicOn={isMicOn} onClick={() => setSwapped(true)} />
-        )}
-
-        {/* Remote video in corner - click to swap back (swapped) */}
-        {swapped && (
-          <>
-            {/* Mobile */}
-            <motion.div
-              className="absolute z-20 md:hidden rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl cursor-pointer active:scale-95 transition-transform"
-              style={{ top: '52px', right: '12px', width: 90, height: 120 }}
-              onClick={() => setSwapped(false)}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', damping: 25 }}
-            >
-              <RemoteVideo
-                stream={remoteStream}
-                peerName={peerName}
-                peerGender={peerGender}
-                isVideoOn={true}
-                callDuration={callDuration}
-              />
-            </motion.div>
-            {/* Desktop */}
-            <motion.div
-              className="absolute z-20 hidden md:block rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl cursor-pointer hover:scale-105 transition-transform"
-              style={{ bottom: '80px', left: '16px', width: 120, height: 160 }}
-              onClick={() => setSwapped(false)}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ type: 'spring', damping: 25 }}
-            >
-              <RemoteVideo
-                stream={remoteStream}
-                peerName={peerName}
-                peerGender={peerGender}
-                isVideoOn={true}
-                callDuration={callDuration}
-              />
-            </motion.div>
-          </>
-        )}
+        {/* ═══ LOCAL VIDEO — corner when !swapped, full screen when swapped ═══ */}
+        <div
+          className="absolute z-20 cursor-pointer active:scale-95 transition-all duration-300 ease-in-out"
+          style={swapped
+            ? { inset: 0 }
+            : { bottom: 80, left: 16, width: 120, height: 160, borderRadius: 16, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }
+          }
+          onClick={() => setSwapped(!swapped)}
+        >
+          {isVideoOn && localStream ? (
+            <video
+              ref={(el) => { if (el) el.srcObject = localStream }}
+              autoPlay playsInline muted
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-black/60 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                <span className="text-white text-xs font-bold">YOU</span>
+              </div>
+            </div>
+          )}
+          {/* Mic indicator */}
+          <div className="absolute top-1.5 left-1.5">
+            <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-1.5 py-0.5">
+              <div className={`w-1.5 h-1.5 rounded-full ${isMicOn ? 'bg-green-400' : 'bg-red-400'}`} />
+              <span className="text-[8px] text-white/80 font-medium">YOU</span>
+            </div>
+          </div>
+        </div>
 
         {/* Desktop controls */}
         <div className="hidden md:block absolute bottom-0 left-0 right-0 z-10">
