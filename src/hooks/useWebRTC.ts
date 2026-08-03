@@ -147,6 +147,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
 
   const handleIncomingSignal = useCallback((data: { signal: any; sender: string }) => {
     if (data.signal?.type === 'profile') {
+      console.log('[WebRTC] Received profile:', data.signal)
       setPeerName(data.signal.name || 'Stranger')
       setPeerGender(data.signal.gender || 'unknown')
       return
@@ -200,6 +201,8 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected }: W
       peerRef.current = null
     }
     setRemoteStream(null)
+    setPeerName('Stranger')
+    setPeerGender('unknown')
     peerIdRef.current = null
     connectedRef.current = false
     setPeerId(null)
