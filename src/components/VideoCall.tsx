@@ -27,7 +27,6 @@ interface VideoCallProps {
   onReport: (reason: string) => void
   onScreenShare: () => Promise<boolean | void>
   onStopScreenShare: () => void
-  onFlipCamera: () => void
   screenShareEndedVersion?: number
 }
 
@@ -50,11 +49,11 @@ export default function VideoCall({
   onReport,
   onScreenShare,
   onStopScreenShare,
-  onFlipCamera,
   screenShareEndedVersion,
 }: VideoCallProps) {
   const [showReport, setShowReport] = useState(false)
   const [callDuration, setCallDuration] = useState(0)
+  const [swapped, setSwapped] = useState(false)
   const [input, setInput] = useState('')
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const swipeRef = useRef<HTMLDivElement>(null)
@@ -129,8 +128,10 @@ export default function VideoCall({
         onDragEnd={handleSwipe}
         whileDrag={{ scale: 0.98 }}
       >
-        {/* ═══ REMOTE VIDEO — always full screen, no click action ═══ */}
-        <div className="absolute inset-0 z-10">
+        {/* ═══ REMOTE VIDEO — full screen by default, corner when swapped. No click on big screen ═══ */}
+        <div
+          className={`absolute z-10 transition-all duration-300 ease-in-out ${swapped ? 'top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20' : 'inset-0'}`}
+        >
           <RemoteVideo
             stream={remoteStream}
             peerName={peerName}
@@ -140,10 +141,12 @@ export default function VideoCall({
           />
         </div>
 
-        {/* ═══ LOCAL VIDEO — top-right on mobile, bottom-left on desktop. Tap to flip camera ═══ */}
+        {/* ═══ LOCAL VIDEO — corner by default (top-right on mobile, bottom-left on desktop). Tap to swap views like WhatsApp. Full screen when swapped ═══ */}
         <div
-          className="absolute z-20 top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 cursor-pointer shadow-2xl"
-          onClick={onFlipCamera}
+          className={`absolute z-20 transition-all duration-300 ease-in-out cursor-pointer ${swapped
+            ? 'inset-0'
+            : 'top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl'}`}
+          onClick={() => setSwapped(!swapped)}
         >
           {isVideoOn && localStream ? (
             <video

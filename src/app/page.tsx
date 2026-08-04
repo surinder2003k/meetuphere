@@ -14,7 +14,7 @@ import type { UserProfile } from '@/types'
 
 export default function Home() {
   const store = useStore()
-  const { stream: localStream, error: mediaError, loading: mediaLoading, requestMedia, flipCamera, toggleMic, toggleVideo, cleanup: cleanupMedia } = useMediaPermissions()
+  const { stream: localStream, error: mediaError, loading: mediaLoading, requestMedia, toggleMic, toggleVideo, cleanup: cleanupMedia } = useMediaPermissions()
   const currentPeerIdRef = useRef<string | null>(null)
   const [userCount, setUserCount] = useState(0)
 
@@ -54,8 +54,6 @@ export default function Home() {
   startScreenShareRef.current = webrtc.startScreenShare
   const stopScreenShareRef = useRef(webrtc.stopScreenShare)
   stopScreenShareRef.current = webrtc.stopScreenShare
-  const replaceVideoTrackRef = useRef(webrtc.replaceVideoTrack)
-  replaceVideoTrackRef.current = webrtc.replaceVideoTrack
 
   const sendSignalRef = useRef<(data: { signal: any; target: string }) => void>(() => {})
   const findPeerRef = useRef<(profile: UserProfile) => void>(() => {})
@@ -189,16 +187,6 @@ export default function Home() {
   const handleStopScreenShare = useCallback(() => {
     stopScreenShareRef.current()
   }, [])
-
-  const handleFlipCamera = useCallback(async () => {
-    const newStream = await flipCamera()
-    if (newStream) {
-      const track = newStream.getVideoTracks()[0]
-      if (track) {
-        replaceVideoTrackRef.current(track, newStream)
-      }
-    }
-  }, [flipCamera])
 
   const handleEndCall = useCallback(() => {
     try { stopScreenShareRef.current() } catch {}
@@ -403,7 +391,6 @@ export default function Home() {
             onReport={handleReport}
             onScreenShare={handleScreenShare}
             onStopScreenShare={handleStopScreenShare}
-            onFlipCamera={handleFlipCamera}
             screenShareEndedVersion={screenShareEndedVersion}
           />
         )}
