@@ -128,9 +128,9 @@ export default function VideoCall({
         onDragEnd={handleSwipe}
         whileDrag={{ scale: 0.98 }}
       >
-        {/* ═══ REMOTE VIDEO — full screen by default, corner when swapped. Tap only when in corner to swap back ═══ */}
+        {/* ═══ REMOTE VIDEO — full screen by default, corner when swapped. Tap only when in corner to swap back. Corner always on top (z-30) so it stays tappable ═══ */}
         <div
-          className={`absolute z-10 transition-all duration-300 ease-in-out cursor-pointer ${swapped ? 'top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20' : 'inset-0'}`}
+          className={`absolute transition-all duration-300 ease-in-out cursor-pointer ${swapped ? 'z-30 top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20' : 'z-10 inset-0'}`}
           onClick={() => swapped && setSwapped(false)}
         >
           <RemoteVideo
@@ -142,11 +142,11 @@ export default function VideoCall({
           />
         </div>
 
-        {/* ═══ LOCAL VIDEO — corner by default (top-right on mobile, bottom-left on desktop). Tap to swap views like WhatsApp. Full screen when swapped ═══ */}
+        {/* ═══ LOCAL VIDEO — corner by default (top-right on mobile, bottom-left on desktop). Tap to swap views like WhatsApp. Full screen when swapped (z-10, below the corner) ═══ */}
         <div
-          className={`absolute z-20 transition-all duration-300 ease-in-out cursor-pointer ${swapped
-            ? 'inset-0'
-            : 'top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl'}`}
+          className={`absolute transition-all duration-300 ease-in-out cursor-pointer ${swapped
+            ? 'z-10 inset-0'
+            : 'z-30 top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl'}`}
           onClick={() => !swapped && setSwapped(true)}
         >
           {isVideoOn && localStream ? (
