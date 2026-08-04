@@ -1,0 +1,33 @@
+[   35330ms] [LOG] [App] Matched: {peerId: _4foqOWlqTPKPDh-AAAF, initiator: false, myId: Cf4bqFoh90VSBkfIAAAB, raw: Object} @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35335ms] [LOG] [WebRTC] Creating SimplePeer: {initiator: false, targetPeerId: _4foqOWlqTPKPDh-AAAF, tracks: 2} @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35371ms] [LOG] [WebRTC] Received profile: {type: profile, name: Leo, gender: male} @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35812ms] [LOG] [WebRTC] Receiving signal: offer from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35821ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35827ms] [LOG] [WebRTC] Received remote stream! @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35878ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35895ms] [LOG] [WebRTC] Sending signal: answer -> _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35896ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35897ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35898ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35903ms] [LOG] [WebRTC] Sending signal: candidate -> _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35904ms] [LOG] [WebRTC] Sending signal: candidate -> _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   35938ms] [LOG] [WebRTC] Sending signal: candidate -> _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36006ms] [LOG] [WebRTC] Sending signal: candidate -> _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36007ms] [LOG] [WebRTC] Sending signal: candidate -> _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36113ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36113ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36115ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36116ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36117ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36118ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36118ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36119ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36119ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36120ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36121ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36122ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36123ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36124ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36124ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36124ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[   36504ms] [LOG] [WebRTC] Data channel connected! @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8

@@ -11,6 +11,24 @@ interface MediaState {
 export function useMediaPermissions() {
   const [state, setState] = useState<MediaState>({ stream: null, error: null, loading: false })
   const streamRef = useRef<MediaStream | null>(null)
+  const facingModeRef = useRef<'user' | 'environment'>('user')
+
+  const getStream = useCallback(async (facingMode: 'user' | 'environment') => {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode,
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+        frameRate: { ideal: 30 },
+      },
+      audio: {
+        echoCancellation: true,
+        noiseSuppression: true,
+        sampleRate: 48000,
+      },
+    })
+    return stream
+  }, [])
 
   const requestMedia = useCallback(async () => {
     if (state.loading) return streamRef.current
@@ -19,18 +37,7 @@ export function useMediaPermissions() {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((t) => t.stop())
       }
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 30 },
-        },
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 48000,
-        },
-      })
+      const stream = await getStream(facingModeRef.current)
       streamRef.current = stream
       setState({ stream, error: null, loading: false })
       return stream
@@ -46,7 +53,27 @@ export function useMediaPermissions() {
       setState({ stream: null, error: errorMsg, loading: false })
       return null
     }
-  }, [])
+  }, [state.loading, getStream])
+
+  const flipCamera = useCallback(async () => {
+    if (state.loading) return null
+    const newMode = facingModeRef.current === 'user' ? 'environment' : 'user'
+    setState((s) => ({ ...s, loading: true }))
+    try {
+      const oldStream = streamRef.current
+      const newStream = await getStream(newMode)
+      if (oldStream) {
+        oldStream.getTracks().forEach((t) => t.stop())
+      }
+      facingModeRef.current = newMode
+      streamRef.current = newStream
+      setState({ stream: newStream, error: null, loading: false })
+      return newStream
+    } catch (err: any) {
+      setState((s) => ({ ...s, loading: false }))
+      return null
+    }
+  }, [state.loading, getStream])
 
   const toggleMic = useCallback((on: boolean) => {
     if (streamRef.current) {
@@ -76,5 +103,5 @@ export function useMediaPermissions() {
     }
   }, [])
 
-  return { ...state, requestMedia, toggleMic, toggleVideo, cleanup }
+  return { ...state, requestMedia, flipCamera, toggleMic, toggleVideo, cleanup }
 }
