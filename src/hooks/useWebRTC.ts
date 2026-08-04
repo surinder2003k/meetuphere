@@ -325,34 +325,6 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onS
     peer.replaceTrack(videoTrack, videoTrack, stream)
   }, [])
 
-  const replaceVideoTrack = useCallback((newTrack: MediaStreamTrack, newStream: MediaStream) => {
-    const peer = peerRef.current
-    if (!peer || !peer.connected) {
-      console.log('[WebRTC] replaceVideoTrack skipped (peer not connected)')
-      return
-    }
-    const oldTrack = localStreamRef.current?.getVideoTracks()[0]
-    if (!oldTrack) {
-      console.log('[WebRTC] replaceVideoTrack skipped (no old video track)')
-      return
-    }
-    try {
-      console.log('[WebRTC] Replacing video track for camera flip')
-      peer.replaceTrack(oldTrack, newTrack, newStream)
-      console.log('[WebRTC] replaceTrack success')
-    } catch (err) {
-      console.error('[WebRTC] SimplePeer replaceTrack failed, trying native:', err)
-      const pc = (peer as any)._pc as RTCPeerConnection | undefined
-      if (pc) {
-        const sender = pc.getSenders().find((s: RTCRtpSender) => s.track?.kind === 'video')
-        if (sender) {
-          sender.replaceTrack(newTrack)
-          console.log('[WebRTC] Native replaceTrack success')
-        }
-      }
-    }
-  }, [])
-
   return {
     remoteStream,
     peerName,
@@ -368,6 +340,5 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onS
     cleanup,
     startScreenShare,
     stopScreenShare,
-    replaceVideoTrack,
   }
 }
