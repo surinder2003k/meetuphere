@@ -53,7 +53,6 @@ export default function VideoCall({
 }: VideoCallProps) {
   const [showReport, setShowReport] = useState(false)
   const [callDuration, setCallDuration] = useState(0)
-  const [swapped, setSwapped] = useState(false)
   const [input, setInput] = useState('')
   const [isScreenSharing, setIsScreenSharing] = useState(false)
   const swipeRef = useRef<HTMLDivElement>(null)
@@ -128,15 +127,8 @@ export default function VideoCall({
         onDragEnd={handleSwipe}
         whileDrag={{ scale: 0.98 }}
       >
-        {/* ═══ REMOTE VIDEO — full screen when !swapped, corner when swapped ═══ */}
-        <div
-          className="absolute z-10 transition-all duration-300 ease-in-out cursor-pointer"
-          style={swapped
-            ? { top: 12, right: 12, width: 120, height: 160, borderRadius: 16, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }
-            : { inset: 0 }
-          }
-          onClick={() => setSwapped(!swapped)}
-        >
+        {/* ═══ REMOTE VIDEO — always full screen ═══ */}
+        <div className="absolute inset-0 z-10">
           <RemoteVideo
             stream={remoteStream}
             peerName={peerName}
@@ -146,15 +138,8 @@ export default function VideoCall({
           />
         </div>
 
-        {/* ═══ LOCAL VIDEO — corner when !swapped, full screen when swapped ═══ */}
-        <div
-          className="absolute z-20 cursor-pointer active:scale-95 transition-all duration-300 ease-in-out"
-          style={swapped
-            ? { inset: 0 }
-            : { bottom: 80, left: 16, width: 120, height: 160, borderRadius: 16, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }
-          }
-          onClick={() => setSwapped(!swapped)}
-        >
+        {/* ═══ LOCAL VIDEO — always corner (bottom-left) ═══ */}
+        <div className="absolute z-20 bottom-20 left-4 w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20">
           {isVideoOn && localStream ? (
             <video
               ref={localVideoRef}
