@@ -130,7 +130,7 @@ export default function VideoCall({
       >
         {/* ═══ REMOTE VIDEO — full screen by default, corner when swapped. Tap only when in corner to swap back. Corner always on top (z-30) so it stays tappable ═══ */}
         <div
-          className={`absolute transition-all duration-300 ease-in-out cursor-pointer ${swapped ? 'z-30 top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20' : 'z-10 inset-0'}`}
+          className={`absolute cursor-pointer ${swapped ? 'z-30 top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20' : 'z-10 inset-0'}`}
           onClick={() => swapped && setSwapped(false)}
         >
           <RemoteVideo
@@ -144,7 +144,7 @@ export default function VideoCall({
 
         {/* ═══ LOCAL VIDEO — corner by default (top-right on mobile, bottom-left on desktop). Tap to swap views like WhatsApp. Full screen when swapped (z-10, below the corner) ═══ */}
         <div
-          className={`absolute transition-all duration-300 ease-in-out cursor-pointer ${swapped
+          className={`absolute cursor-pointer ${swapped
             ? 'z-10 inset-0'
             : 'z-30 top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl'}`}
           onClick={() => !swapped && setSwapped(true)}
