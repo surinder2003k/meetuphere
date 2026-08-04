@@ -128,9 +128,10 @@ export default function VideoCall({
         onDragEnd={handleSwipe}
         whileDrag={{ scale: 0.98 }}
       >
-        {/* ═══ REMOTE VIDEO — full screen by default, corner when swapped. No click on big screen ═══ */}
+        {/* ═══ REMOTE VIDEO — full screen by default, corner when swapped. Tap only when in corner to swap back ═══ */}
         <div
-          className={`absolute z-10 transition-all duration-300 ease-in-out ${swapped ? 'top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20' : 'inset-0'}`}
+          className={`absolute z-10 transition-all duration-300 ease-in-out cursor-pointer ${swapped ? 'top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20' : 'inset-0'}`}
+          onClick={() => swapped && setSwapped(false)}
         >
           <RemoteVideo
             stream={remoteStream}
@@ -146,7 +147,7 @@ export default function VideoCall({
           className={`absolute z-20 transition-all duration-300 ease-in-out cursor-pointer ${swapped
             ? 'inset-0'
             : 'top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl'}`}
-          onClick={() => setSwapped(!swapped)}
+          onClick={() => !swapped && setSwapped(true)}
         >
           {isVideoOn && localStream ? (
             <video
