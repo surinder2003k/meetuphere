@@ -1,0 +1,10 @@
+- generic [active] [ref=f1e1]:
+  - generic:
+    - generic [ref=f1e2]:
+      - generic [ref=f1e3]: MEETUP.HERE
+      - generic [ref=f1e16]: 1 online
+    - button [ref=f1e5]
+  - generic [ref=f1e94]:
+    - heading "Looking for someone to vibe with..." [level=2] [ref=f1e106]
+    - paragraph [ref=f1e107]: Connecting you to a random stranger
+  - alert [ref=f1e15]

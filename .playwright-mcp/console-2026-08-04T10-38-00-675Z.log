@@ -1,0 +1,27 @@
+[    7865ms] [LOG] [App] Matched: {peerId: xOU5w9_lA0Gk2gFFAAAF, initiator: true, myId: qfhHBc6P9FzLDHqHAAAJ, raw: Object} @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    7867ms] [LOG] [WebRTC] Creating SimplePeer: {initiator: true, targetPeerId: xOU5w9_lA0Gk2gFFAAAF, tracks: 2} @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    7943ms] [LOG] [WebRTC] Received profile: {type: profile, name: Leo, gender: male} @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8016ms] [LOG] [WebRTC] Sending signal: offer -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8025ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8030ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8043ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8046ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8049ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8054ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8077ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8084ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8085ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8128ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8131ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8133ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8135ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8136ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8138ms] [LOG] [WebRTC] Sending signal: candidate -> xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8799ms] [LOG] [WebRTC] Receiving signal: answer from xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8808ms] [LOG] [WebRTC] Receiving signal: candidate from xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8814ms] [LOG] [WebRTC] Receiving signal: candidate from xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8826ms] [LOG] [WebRTC] Received remote stream! @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8884ms] [LOG] [WebRTC] Receiving signal: candidate from xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8950ms] [LOG] [WebRTC] Receiving signal: candidate from xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    8961ms] [LOG] [WebRTC] Receiving signal: candidate from xOU5w9_lA0Gk2gFFAAAF @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8
+[    9139ms] [LOG] [WebRTC] Data channel connected! @ https://meetuphere.vercel.app/_next/static/chunks/1_lmos7z0t563.js:8

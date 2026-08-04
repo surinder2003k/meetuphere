@@ -140,9 +140,9 @@ export default function VideoCall({
           />
         </div>
 
-        {/* ═══ LOCAL VIDEO — top-right corner, tap to flip camera ═══ */}
+        {/* ═══ LOCAL VIDEO — top-right on mobile, bottom-left on desktop. Tap to flip camera ═══ */}
         <div
-          className="absolute z-20 top-16 right-4 w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 cursor-pointer shadow-2xl"
+          className="absolute z-20 top-16 right-4 md:top-auto md:bottom-20 md:left-4 md:right-auto w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 cursor-pointer shadow-2xl"
           onClick={onFlipCamera}
         >
           {isVideoOn && localStream ? (

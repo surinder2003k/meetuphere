@@ -31,3 +31,5 @@
 [   36124ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
 [   36124ms] [LOG] [WebRTC] Receiving signal: candidate from _4foqOWlqTPKPDh-AAAF @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
 [   36504ms] [LOG] [WebRTC] Data channel connected! @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[  525115ms] [ERROR] [WebRTC] Peer error: Connection failed. @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
+[  525124ms] [LOG] [WebRTC] Peer closed @ https://meetuphere.vercel.app/_next/static/chunks/2yk-g365bopiq.js:8
