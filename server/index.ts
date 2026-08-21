@@ -23,6 +23,11 @@ const io = new Server(httpServer, {
     methods: ['GET', 'POST'],
     credentials: true,
   },
+  // Fast dead-peer detection: when a user's phone/network drops mid-call, the
+  // survivor should recover quickly instead of waiting ~60s for the default
+  // ping timeout. Worst-case detection here is ~pingInterval + pingTimeout.
+  pingInterval: 5000,
+  pingTimeout: 8000,
 })
 
 interface PeerProfile {

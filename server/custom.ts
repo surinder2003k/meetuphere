@@ -44,6 +44,9 @@ app.prepare().then(() => {
       origin: ['http://localhost:3000', 'http://localhost:3001', 'https://meetuphere.vercel.app'],
       methods: ['GET', 'POST'],
     },
+    // Fast dead-peer detection for instant disconnection handling.
+    pingInterval: 5000,
+    pingTimeout: 8000,
   })
 
   function tryMatch(socketId: string) {

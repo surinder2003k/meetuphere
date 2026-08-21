@@ -64,6 +64,11 @@ export default function Home() {
   searchingRef.current = store.callState === 'searching'
   const activeProfileRef = useRef<UserProfile | null>(null)
   activeProfileRef.current = store.profile || null
+  const skipRef = useRef<() => void>(() => {})
+  // Guards against being stuck on "connecting" indefinitely: if WebRTC never
+  // negotiates (NAT/P2P fail, other side not ready, media not granted), we
+  // abort and re-enter the search queue so the user is never stuck.
+  const connectingSinceRef = useRef(0)
 
   const socketService = useSocket({
     onMatched: useCallback((data: any) => {
@@ -140,6 +145,7 @@ export default function Home() {
   useEffect(() => {
     sendSignalRef.current = socketService.sendSignal
     findPeerRef.current = socketService.findPeer
+    skipRef.current = socketService.skip
   }, [socketService])
 
   useEffect(() => {
@@ -200,6 +206,32 @@ export default function Home() {
     if (socket.connected) onConnect()
     return () => { socket.off('connect', onConnect) }
   }, [socketService])
+
+  // Watchdog: never leave the user stuck on "connecting". If WebRTC doesn't get
+  // to 'connected' within a timeout, tear down cleanly, free the server-side pair,
+  // and drop back into the search queue to try the next match.
+  useEffect(() => {
+    if (store.callState === 'connecting') {
+      if (!connectingSinceRef.current) connectingSinceRef.current = Date.now()
+      const recover = setTimeout(() => {
+        console.log('[App] Connect timeout - aborting and rejoining search')
+        try { stopScreenShareRef.current() } catch {}
+        cleanupRef.current()
+        currentPeerIdRef.current = null
+        store.setPeerId(null)
+        store.setQueuePosition(null)
+        store.setMicOn(true)
+        store.setVideoOn(true)
+        store.setError('Could not connect. Finding another match...')
+        setTimeout(() => store.setError(null), 2500)
+        skipRef.current() // tell the server to free this pair
+        store.setCallState('searching')
+        if (store.profile) setTimeout(() => findPeerRef.current(store.profile!), 400)
+      }, 20000)
+      return () => clearTimeout(recover)
+    }
+    connectingSinceRef.current = 0
+  }, [store.callState])
 
   const handleProfileSubmit = useCallback(async (profile: UserProfile) => {
     store.setProfile(profile)
