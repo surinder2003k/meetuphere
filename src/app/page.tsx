@@ -151,11 +151,40 @@ export default function Home() {
     return () => { socket.off('connect', onConnect) }
   }, [socketService])
 
+  // Periodic heartbeat while searching: re-emit findPeer so the server always
+  // has an up-to-date view of who is waiting. This guarantees fast, refresh-free
+  // syncing even if the first emit was dropped before the socket was fully ready.
+  // Deps on callState/profile so the timer (re)starts exactly when the user enters
+  // the searching state, reading live refs inside each tick.
+  useEffect(() => {
+    if (!searchingRef.current || !activeProfileRef.current) return
+    findPeerRef.current(activeProfileRef.current)
+    const timer = setInterval(() => {
+      const current = activeProfileRef.current
+      if (searchingRef.current && current) {
+        findPeerRef.current(current)
+      }
+    }, 8000)
+    return () => clearInterval(timer)
+  }, [store.callState, store.profile])
+
+  useEffect(() => {
+    socketService.connect()
+    return () => {
+      try { stopScreenShareRef.current() } catch {}
+      cleanupRef.current()
+      cleanupMedia()
+      socketService.disconnect()
+    }
+  }, [])
+
   // Re-sync with the search queue on every socket (re)connect.
   // The signaling server keeps the waiting list in memory, so if our socket
   // drops (server restart / Render idle timeout / network blip), the server forgets
   // us even though the online counter might still climb. Re-emitting find-peer here
   // gets us back into the matching queue instantly - no manual refresh needed.
+  // This runs after socketService.connect() above so the listener always attaches
+  // to a live socket.
   useEffect(() => {
     const socket = socketService.socketRef.current
     if (!socket) return
@@ -171,33 +200,6 @@ export default function Home() {
     if (socket.connected) onConnect()
     return () => { socket.off('connect', onConnect) }
   }, [socketService])
-
-  // Periodic heartbeat while searching: re-emit findPeer so the server always
-  // has an up-to-date view of who is waiting. This guarantees fast, refresh-free
-  // syncing even if the first emit was dropped before the socket was fully ready.
-  useEffect(() => {
-    const profile = activeProfileRef.current
-    const isSearching = searchingRef.current
-    if (!isSearching || !profile) return
-    findPeerRef.current(profile)
-    const timer = setInterval(() => {
-      const current = activeProfileRef.current
-      if (searchingRef.current && current) {
-        findPeerRef.current(current)
-      }
-    }, 8000)
-    return () => clearInterval(timer)
-  }, [])
-
-  useEffect(() => {
-    socketService.connect()
-    return () => {
-      try { stopScreenShareRef.current() } catch {}
-      cleanupRef.current()
-      cleanupMedia()
-      socketService.disconnect()
-    }
-  }, [])
 
   const handleProfileSubmit = useCallback(async (profile: UserProfile) => {
     store.setProfile(profile)
