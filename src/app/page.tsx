@@ -58,6 +58,12 @@ export default function Home() {
   const sendSignalRef = useRef<(data: { signal: any; target: string }) => void>(() => {})
   const findPeerRef = useRef<(profile: UserProfile) => void>(() => {})
   const mySocketIdRef = useRef<string>('')
+  // Live-track whether the user is currently in the search queue, so we can
+  // re-sync with the signaling server on reconnect / periodically without any refresh.
+  const searchingRef = useRef(false)
+  searchingRef.current = store.callState === 'searching'
+  const activeProfileRef = useRef<UserProfile | null>(null)
+  activeProfileRef.current = store.profile || null
 
   const socketService = useSocket({
     onMatched: useCallback((data: any) => {
@@ -144,6 +150,44 @@ export default function Home() {
     if (socket.connected) mySocketIdRef.current = socket.id || ''
     return () => { socket.off('connect', onConnect) }
   }, [socketService])
+
+  // Re-sync with the search queue on every socket (re)connect.
+  // The signaling server keeps the waiting list in memory, so if our socket
+  // drops (server restart / Render idle timeout / network blip), the server forgets
+  // us even though the online counter might still climb. Re-emitting find-peer here
+  // gets us back into the matching queue instantly - no manual refresh needed.
+  useEffect(() => {
+    const socket = socketService.socketRef.current
+    if (!socket) return
+    const onConnect = () => {
+      mySocketIdRef.current = socket.id || ''
+      const profile = activeProfileRef.current
+      if (searchingRef.current && profile) {
+        console.log('[App] Reconnected while searching - re-emerging into queue')
+        findPeerRef.current(profile)
+      }
+    }
+    socket.on('connect', onConnect)
+    if (socket.connected) onConnect()
+    return () => { socket.off('connect', onConnect) }
+  }, [socketService])
+
+  // Periodic heartbeat while searching: re-emit findPeer so the server always
+  // has an up-to-date view of who is waiting. This guarantees fast, refresh-free
+  // syncing even if the first emit was dropped before the socket was fully ready.
+  useEffect(() => {
+    const profile = activeProfileRef.current
+    const isSearching = searchingRef.current
+    if (!isSearching || !profile) return
+    findPeerRef.current(profile)
+    const timer = setInterval(() => {
+      const current = activeProfileRef.current
+      if (searchingRef.current && current) {
+        findPeerRef.current(current)
+      }
+    }, 8000)
+    return () => clearInterval(timer)
+  }, [])
 
   useEffect(() => {
     socketService.connect()
