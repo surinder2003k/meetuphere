@@ -103,6 +103,8 @@ export default function Home() {
       store.setQueuePosition(null)
       store.setMicOn(true)
       store.setVideoOn(true)
+      toggleMic(true) // physically re-enable the tracks, not just the UI icon
+      toggleVideo(true)
       currentPeerIdRef.current = null
       store.setError('Your match disconnected. Finding new vibe...')
       setTimeout(() => store.setError(null), 2000)
@@ -110,7 +112,7 @@ export default function Home() {
       if (store.profile) {
         setTimeout(() => findPeerRef.current(store.profile!), 300)
       }
-    }, [store]),
+    }, [store, toggleMic, toggleVideo]),
 
     onPeerLeft: useCallback(() => {
       if (!currentPeerIdRef.current) return
@@ -121,12 +123,14 @@ export default function Home() {
       store.setQueuePosition(null)
       store.setMicOn(true)
       store.setVideoOn(true)
+      toggleMic(true)
+      toggleVideo(true)
       currentPeerIdRef.current = null
       store.setCallState('searching')
       if (store.profile) {
         setTimeout(() => findPeerRef.current(store.profile!), 300)
       }
-    }, [store]),
+    }, [store, toggleMic, toggleVideo]),
 
     onNoPeers: useCallback(() => {
       store.setCallState('searching')
@@ -276,9 +280,11 @@ export default function Home() {
     store.setQueuePosition(null)
     store.setMicOn(true)
     store.setVideoOn(true)
+    toggleMic(true) // re-enable physical tracks so the next call isn't silently muted
+    toggleVideo(true)
     store.setError(null)
     store.setCallState('idle')
-  }, [socketService, store])
+  }, [socketService, store, toggleMic, toggleVideo])
 
   const handleSearchAgain = useCallback(() => {
     store.setMicOn(true)
@@ -295,13 +301,15 @@ export default function Home() {
     store.setQueuePosition(null)
     store.setMicOn(true)
     store.setVideoOn(true)
+    toggleMic(true) // physically restore tracks before finding the next person
+    toggleVideo(true)
     currentPeerIdRef.current = null
     socketService.skip()
     store.setCallState('searching')
     if (store.profile) {
       findPeerRef.current(store.profile)
     }
-  }, [store, socketService])
+  }, [store, socketService, toggleMic, toggleVideo])
 
   const handleSendChat = useCallback((content: string) => {
     const target = currentPeerIdRef.current || store.peerId

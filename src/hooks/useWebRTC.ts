@@ -53,6 +53,8 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onS
 
     connectedRef.current = false
     setRemoteStream(null)
+    setPeerName('Stranger') // don't show the previous peer's name before the new profile arrives
+    setPeerGender('unknown')
     setMessages([])
     setPeerTyping(false)
 
@@ -175,6 +177,9 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onS
       }
     } else {
       console.log('[WebRTC] Queueing signal from', data.sender, '(peer ready:', !!peerRef.current, ')')
+      // Guard against the queue growing forever (dropped/stale peers can keep
+      // emitting after a match ends). Cap to latest 100 signals.
+      if (pendingSignals.current.length >= 100) pendingSignals.current.shift()
       pendingSignals.current.push(data)
     }
   }, [])

@@ -21,6 +21,7 @@ interface WaitingPeer {
 
 const waitingPeers: WaitingPeer[] = []
 const activePairs = new Map<string, string>()
+let connectedCount = 0
 
 function removeFromWaiting(socketId: string) {
   const idx = waitingPeers.findIndex((p) => p.socketId === socketId)
@@ -70,7 +71,9 @@ app.prepare().then(() => {
   }
 
   io.on('connection', (socket) => {
-    console.log(`[+] Connected: ${socket.id}`)
+    connectedCount++
+    io.emit('user-count', connectedCount)
+    console.log(`[+] Connected: ${socket.id} (online: ${connectedCount})`)
 
     socket.on('find-peer', (profile: PeerProfile) => {
       removeFromWaiting(socket.id)
@@ -80,6 +83,7 @@ app.prepare().then(() => {
     })
 
     socket.on('signal', (data: { signal: any; target: string }) => {
+      if (activePairs.get(socket.id) !== data.target) return
       io.to(data.target).emit('signal', { signal: data.signal, sender: socket.id })
     })
 
@@ -114,7 +118,9 @@ app.prepare().then(() => {
     })
 
     socket.on('disconnect', () => {
-      console.log(`[-] Disconnected: ${socket.id}`)
+      connectedCount = Math.max(0, connectedCount - 1)
+      io.emit('user-count', connectedCount)
+      console.log(`[-] Disconnected: ${socket.id} (online: ${connectedCount})`)
       const pairedId = activePairs.get(socket.id)
       if (pairedId) {
         io.to(pairedId).emit('peer-disconnected')
