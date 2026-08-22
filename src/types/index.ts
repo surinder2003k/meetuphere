@@ -1,6 +1,7 @@
 export interface UserProfile {
   name: string
   gender: 'male' | 'female' | 'other' | 'prefer-not-to-say'
+  lookingFor?: 'any' | 'opposite' | 'same'
 }
 
 export interface ChatMessage {

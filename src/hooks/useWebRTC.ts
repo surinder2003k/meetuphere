@@ -26,6 +26,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onC
   const peerIdRef = useRef<string | null>(null)
   const connectedRef = useRef(false)
   const pendingSignals = useRef<{ signal: any; sender: string }[]>([])
+  const pendingChatRef = useRef<ChatMessage[]>([])
   const screenStreamRef = useRef<MediaStream | null>(null)
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -110,6 +111,16 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onC
         timestamp: Date.now(),
       }
       setMessages((prev) => [...prev, msg])
+      // Flush any chat messages typed before the data channel opened.
+      const pending = pendingChatRef.current.splice(0)
+      pending.forEach((m) => {
+        try {
+          peerRef.current?.send(JSON.stringify({ type: 'chat', data: m }))
+        } catch (e) {
+          console.error('[WebRTC] Failed to flush queued message:', e)
+        }
+      })
+      if (pending.length) console.log(`[WebRTC] Flushed ${pending.length} queued message(s)`)
     })
 
     peer.on('data', (chunk: any) => {
@@ -217,15 +228,19 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onC
   }, [])
 
   const sendChatMessage = useCallback((content: string, target: string) => {
-    if (peerRef.current && peerRef.current.connected) {
-      const msg: ChatMessage = {
-        id: crypto.randomUUID(),
-        sender: 'me',
-        content,
-        timestamp: Date.now(),
-      }
+    const msg: ChatMessage = {
+      id: crypto.randomUUID(),
+      sender: 'me',
+      content,
+      timestamp: Date.now(),
+    }
+    setMessages((prev) => [...prev, msg])
+    if (peerRef.current?.connected) {
       peerRef.current.send(JSON.stringify({ type: 'chat', data: msg }))
-      setMessages((prev) => [...prev, msg])
+    } else {
+      // Data channel not open yet (still negotiating) -> queue and flush on connect.
+      if (pendingChatRef.current.length < 50) pendingChatRef.current.push(msg)
+      console.log('[WebRTC] Queued chat message (data channel not open)')
     }
   }, [])
 
@@ -260,6 +275,7 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onC
     setMessages([])
     setPeerTyping(false)
     pendingSignals.current = []
+    pendingChatRef.current = []
   }, [])
 
   const startScreenShare = useCallback(async (): Promise<boolean> => {
@@ -377,5 +393,6 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onC
     cleanup,
     startScreenShare,
     stopScreenShare,
+    isPeerConnected: () => !!peerRef.current?.connected,
   }
 }

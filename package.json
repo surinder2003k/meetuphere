@@ -10,7 +10,8 @@
     "start": "set NODE_ENV=production&& tsx server/custom.ts",
     "start:dev": "next start",
     "lint": "eslint",
-    "server": "tsx server/index.ts"
+    "server": "tsx server/index.ts",
+    "test:server": "tsx scripts/signaling.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.2.4",

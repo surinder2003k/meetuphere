@@ -15,12 +15,13 @@ interface ProfilePopoverProps {
 export default function ProfilePopover({ profile, onUpdate, onDisconnect }: ProfilePopoverProps) {
   const [name, setName] = useState(profile.name)
   const [gender, setGender] = useState(profile.gender)
+  const [lookingFor, setLookingFor] = useState<UserProfile['lookingFor']>(profile.lookingFor || 'opposite')
   const [open, setOpen] = useState(false)
 
   const handleSave = () => {
     if (!name.trim()) return
-    onUpdate({ name: name.trim(), gender })
-    sessionStorage.setItem('vibelink_profile', JSON.stringify({ name: name.trim(), gender }))
+    onUpdate({ name: name.trim(), gender, lookingFor })
+    sessionStorage.setItem('vibelink_profile', JSON.stringify({ name: name.trim(), gender, lookingFor }))
     setOpen(false)
   }
 
@@ -74,6 +75,18 @@ export default function ProfilePopover({ profile, onUpdate, onDisconnect }: Prof
                       <option value="female">Female</option>
                       <option value="other">Other</option>
                       <option value="prefer-not-to-say">Prefer not to say</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-text-muted block mb-1">Chat with</label>
+                    <select
+                      value={lookingFor}
+                      onChange={(e) => setLookingFor(e.target.value as UserProfile['lookingFor'])}
+                      className="w-full bg-surface border border-border rounded-lg py-2 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
+                    >
+                      <option value="any">Anyone</option>
+                      <option value="opposite">Opposite gender</option>
+                      <option value="same">Same gender</option>
                     </select>
                   </div>
                 </div>

@@ -45,6 +45,25 @@ export default function Home() {
   // abort and re-enter the search queue so the user is never stuck.
   const connectingSinceRef = useRef(0)
 
+  const handleConnectionFailed = useCallback(() => {
+    // ICE failed / peer vanished mid-negotiation (or signaling dropped mid-call).
+    // Recover immediately instead of waiting out the 20s connect watchdog.
+    if (!currentPeerIdRef.current) return
+    console.log('[App] Connection failed - rejoining search')
+    try { stopScreenShareRef.current() } catch {}
+    cleanupRef.current()
+    currentPeerIdRef.current = null
+    store.setPeerId(null)
+    store.setQueuePosition(null)
+    store.setMicOn(true)
+    store.setVideoOn(true)
+    store.setError('Could not connect. Finding another match...')
+    setTimeout(() => store.setError(null), 2500)
+    skipRef.current()
+    store.setCallState('searching')
+    if (store.profile) setTimeout(() => findPeerRef.current(store.profile!), 400)
+  }, [store])
+
   const webrtc = useWebRTC({
     localStream,
     profile: store.profile || { name: 'You', gender: 'other' },
@@ -52,24 +71,7 @@ export default function Home() {
     onConnected: useCallback(() => {
       store.setCallState('connected')
     }, [store]),
-    onConnectionFailed: useCallback(() => {
-      // ICE failed / peer vanished mid-negotiation. Recover immediately instead
-      // of waiting out the 20s connect watchdog.
-      if (!currentPeerIdRef.current) return
-      console.log('[App] Connection failed - rejoining search')
-      try { stopScreenShareRef.current() } catch {}
-      cleanupRef.current()
-      currentPeerIdRef.current = null
-      store.setPeerId(null)
-      store.setQueuePosition(null)
-      store.setMicOn(true)
-      store.setVideoOn(true)
-      store.setError('Could not connect. Finding another match...')
-      setTimeout(() => store.setError(null), 2500)
-      skipRef.current()
-      store.setCallState('searching')
-      if (store.profile) setTimeout(() => findPeerRef.current(store.profile!), 400)
-    }, [store]),
+    onConnectionFailed: handleConnectionFailed,
     onScreenShareEnded: handleScreenShareEnded,
   })
 
@@ -156,6 +158,17 @@ export default function Home() {
     onUserCount: useCallback((count) => {
       setUserCount(count)
     }, []),
+
+    onDisconnect: useCallback(() => {
+      // Signaling socket dropped. Show a transient reconnecting notice; the
+      // connect handler below will re-sync the queue / recover the call.
+      if (store.callState === 'searching' || store.callState === 'connected' || store.callState === 'connecting') {
+        store.setError('Connection lost. Reconnecting…')
+        setTimeout(() => {
+          if (store.callState !== 'connected') store.setError(null)
+        }, 3000)
+      }
+    }, [store]),
   })
 
   useEffect(() => {
@@ -212,10 +225,17 @@ export default function Home() {
     if (!socket) return
     const onConnect = () => {
       mySocketIdRef.current = socket.id || ''
+      store.setError(null) // clear any "reconnecting" notice
       const profile = activeProfileRef.current
       if (searchingRef.current && profile) {
         console.log('[App] Reconnected while searching - re-emerging into queue')
         findPeerRef.current(profile)
+      } else if (store.callState === 'connected' && !webrtc.isPeerConnected()) {
+        // Signaling socket dropped mid-call and the WebRTC peer is dead too
+        // (e.g. both sides disconnected). Recover into the search queue instead
+        // of leaving the user stuck on a frozen call screen.
+        console.log('[App] Reconnected but call peer is gone - recovering')
+        handleConnectionFailed()
       }
     }
     socket.on('connect', onConnect)

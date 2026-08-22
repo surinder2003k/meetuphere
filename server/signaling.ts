@@ -7,6 +7,7 @@ const VALID_GENDERS = ['male', 'female', 'other', 'prefer-not-to-say'] as const
 interface PeerProfile {
   name: string
   gender: string
+  lookingFor: 'any' | 'opposite' | 'same'
 }
 
 interface WaitingPeer {
@@ -17,7 +18,9 @@ interface WaitingPeer {
 const waitingPeers: WaitingPeer[] = []
 const activePairs = new Map<string, string>() // socketId -> pairedSocketId
 const profilesBySocket = new Map<string, PeerProfile>() // last known profile per connection
+const bannedPeers = new Set<string>() // socketIds blocked this session after repeat reports
 let connectedCount = 0
+const BAN_THRESHOLD = 3 // reports against the same target before auto-boot
 
 // ---------------------------------------------------------------------------
 // Rate limiting: sliding-window per socket + event type. Keeps abusive clients
@@ -56,7 +59,8 @@ function sanitizeProfile(raw: any): PeerProfile | null {
     typeof raw.name === 'string' ? raw.name.replace(/\s+/g, ' ').trim().slice(0, 30) : ''
   const gender = VALID_GENDERS.includes(raw.gender) ? raw.gender : null
   if (!name || !gender) return null
-  return { name, gender }
+  const lookingFor = ['any', 'opposite', 'same'].includes(raw.lookingFor) ? raw.lookingFor : 'opposite'
+  return { name, gender, lookingFor }
 }
 
 // ---------------------------------------------------------------------------
@@ -93,20 +97,30 @@ function persistReport(reporterId: string, targetId: string, targetProfile: Peer
 // but always fall back to the first available peer so nobody is stuck waiting.
 // ---------------------------------------------------------------------------
 function findTarget(me: WaitingPeer): WaitingPeer | null {
-  const opposite =
-    me.profile.gender === 'male'
-      ? 'female'
-      : me.profile.gender === 'female'
-        ? 'male'
-        : null
   const available = waitingPeers.filter(
     (p) => p.socketId !== me.socketId && !activePairs.has(p.socketId)
   )
-  if (opposite) {
-    const opp = available.find((p) => p.profile.gender === opposite)
-    if (opp) return opp
+  if (available.length === 0) return null
+
+  const pref = me.profile.lookingFor
+  let preferredGender: string | null = null
+  if (pref === 'opposite') {
+    preferredGender =
+      me.profile.gender === 'male'
+        ? 'female'
+        : me.profile.gender === 'female'
+          ? 'male'
+          : null
+  } else if (pref === 'same') {
+    preferredGender = me.profile.gender
   }
-  return available[0] || null
+
+  if (preferredGender) {
+    const match = available.find((p) => p.profile.gender === preferredGender)
+    if (match) return match
+  }
+  // No preferred-gender candidate waiting -> fall back to anyone so nobody is stuck.
+  return available[0]
 }
 
 function tryMatch(socketId: string, io: IOServer) {
@@ -174,9 +188,15 @@ export function attachSignaling(io: IOServer) {
         return
       }
       profilesBySocket.set(socket.id, profile)
+      if (bannedPeers.has(socket.id)) {
+        // Repeat offender blocked this session -> don't queue.
+        socket.emit('waiting', 0)
+        console.log(`[ban] blocked find-peer from ${socket.id}`)
+        return
+      }
       removeFromWaiting(socket.id)
       waitingPeers.push({ socketId: socket.id, profile })
-      console.log(`[?] ${socket.id} looking for peer (${profile.name}/${profile.gender})`)
+      console.log(`[?] ${socket.id} looking for peer (${profile.name}/${profile.gender}/${profile.lookingFor})`)
       tryMatch(socket.id, io)
     })
 
@@ -207,6 +227,21 @@ export function attachSignaling(io: IOServer) {
       if (activePairs.get(socket.id) !== data.target) return
       const targetProfile = profilesBySocket.get(data.target) || null
       persistReport(socket.id, data.target, targetProfile, data.reason || 'no reason')
+
+      // Repeat-offender auto-ban: boot the target from their current match and
+      // block them from re-queueing for the rest of this server session.
+      const count = (reportCounts.get(data.target) || 0)
+      if (count >= BAN_THRESHOLD && !bannedPeers.has(data.target)) {
+        bannedPeers.add(data.target)
+        const pairedId = activePairs.get(data.target)
+        if (pairedId) {
+          io.to(pairedId).emit('peer-disconnected')
+          removeFromActive(data.target)
+        }
+        removeFromWaiting(data.target)
+        io.to(data.target).emit('peer-left')
+        console.log(`[ban] auto-banned ${data.target} after ${count} reports`)
+      }
     })
 
     socket.on('stop-searching', () => {
@@ -225,6 +260,7 @@ export function attachSignaling(io: IOServer) {
       }
       removeFromWaiting(socket.id)
       profilesBySocket.delete(socket.id)
+      bannedPeers.delete(socket.id)
       rateBuckets.forEach((_, key) => {
         if (key.startsWith(`${socket.id}:`)) rateBuckets.delete(key)
       })

@@ -12,6 +12,7 @@ interface UseSocketOptions {
   onNoPeers: () => void
   onWaiting: (position: number) => void
   onUserCount: (count: number) => void
+  onDisconnect: () => void
 }
 
 export function useSocket(options: UseSocketOptions) {
@@ -58,6 +59,7 @@ export function useSocket(options: UseSocketOptions) {
 
     socket.on('disconnect', () => {
       connectedRef.current = false
+      optionsRef.current.onDisconnect?.()
     })
 
     if (!socket.connected) {

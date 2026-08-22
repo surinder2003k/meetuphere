@@ -12,6 +12,7 @@ interface EntryModalProps {
 export default function EntryModal({ onSubmit }: EntryModalProps) {
   const [name, setName] = useState('')
   const [gender, setGender] = useState<UserProfile['gender'] | ''>('')
+  const [lookingFor, setLookingFor] = useState<UserProfile['lookingFor']>('opposite')
   const [ageConfirmed, setAgeConfirmed] = useState(false)
   const [hasStarted, setHasStarted] = useState(false)
 
@@ -30,7 +31,11 @@ export default function EntryModal({ onSubmit }: EntryModalProps) {
   const handleSubmit = () => {
     if (!name.trim() || !gender || !ageConfirmed || hasStarted) return
     setHasStarted(true)
-    const profile: UserProfile = { name: name.trim(), gender: gender as UserProfile['gender'] }
+    const profile: UserProfile = {
+      name: name.trim(),
+      gender: gender as UserProfile['gender'],
+      lookingFor,
+    }
     sessionStorage.setItem('vibelink_profile', JSON.stringify(profile))
     onSubmit(profile)
   }
@@ -85,6 +90,30 @@ export default function EntryModal({ onSubmit }: EntryModalProps) {
                 }`}
               >
                 {g.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Who to chat with */}
+        <div className="mb-6">
+          <label className="block text-[11px] font-semibold text-white/40 uppercase tracking-widest mb-2.5">Chat with</label>
+          <div className="grid grid-cols-3 gap-2">
+            {([
+              { value: 'any', label: 'Anyone' },
+              { value: 'opposite', label: 'Opposite' },
+              { value: 'same', label: 'Same' },
+            ] as const).map((o) => (
+              <button
+                key={o.value}
+                onClick={() => setLookingFor(o.value)}
+                className={`py-2.5 rounded-xl border text-xs font-medium transition-all ${
+                  lookingFor === o.value
+                    ? 'border-white/40 bg-white/10 text-white'
+                    : 'border-white/10 bg-white/5 text-white/50 hover:bg-white/8 hover:border-white/15'
+                }`}
+              >
+                {o.label}
               </button>
             ))}
           </div>
