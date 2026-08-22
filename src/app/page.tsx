@@ -30,12 +30,45 @@ export default function Home() {
     setTimeout(() => store.setError(null), 2000)
   }, [store])
 
+  const sendSignalRef = useRef<(data: { signal: any; target: string }) => void>(() => {})
+  const findPeerRef = useRef<(profile: UserProfile) => void>(() => {})
+  const mySocketIdRef = useRef<string>('')
+  // Live-track whether the user is currently in the search queue, so we can
+  // re-sync with the signaling server on reconnect / periodically without any refresh.
+  const searchingRef = useRef(false)
+  searchingRef.current = store.callState === 'searching'
+  const activeProfileRef = useRef<UserProfile | null>(null)
+  activeProfileRef.current = store.profile || null
+  const skipRef = useRef<() => void>(() => {})
+  // Guards against being stuck on "connecting" indefinitely: if WebRTC never
+  // negotiates (NAT/P2P fail, other side not ready, media not granted), we
+  // abort and re-enter the search queue so the user is never stuck.
+  const connectingSinceRef = useRef(0)
+
   const webrtc = useWebRTC({
     localStream,
     profile: store.profile || { name: 'You', gender: 'other' },
     onPeerSignal: handlePeerSignal,
     onConnected: useCallback(() => {
       store.setCallState('connected')
+    }, [store]),
+    onConnectionFailed: useCallback(() => {
+      // ICE failed / peer vanished mid-negotiation. Recover immediately instead
+      // of waiting out the 20s connect watchdog.
+      if (!currentPeerIdRef.current) return
+      console.log('[App] Connection failed - rejoining search')
+      try { stopScreenShareRef.current() } catch {}
+      cleanupRef.current()
+      currentPeerIdRef.current = null
+      store.setPeerId(null)
+      store.setQueuePosition(null)
+      store.setMicOn(true)
+      store.setVideoOn(true)
+      store.setError('Could not connect. Finding another match...')
+      setTimeout(() => store.setError(null), 2500)
+      skipRef.current()
+      store.setCallState('searching')
+      if (store.profile) setTimeout(() => findPeerRef.current(store.profile!), 400)
     }, [store]),
     onScreenShareEnded: handleScreenShareEnded,
   })
@@ -55,21 +88,6 @@ export default function Home() {
   const stopScreenShareRef = useRef(webrtc.stopScreenShare)
   stopScreenShareRef.current = webrtc.stopScreenShare
 
-  const sendSignalRef = useRef<(data: { signal: any; target: string }) => void>(() => {})
-  const findPeerRef = useRef<(profile: UserProfile) => void>(() => {})
-  const mySocketIdRef = useRef<string>('')
-  // Live-track whether the user is currently in the search queue, so we can
-  // re-sync with the signaling server on reconnect / periodically without any refresh.
-  const searchingRef = useRef(false)
-  searchingRef.current = store.callState === 'searching'
-  const activeProfileRef = useRef<UserProfile | null>(null)
-  activeProfileRef.current = store.profile || null
-  const skipRef = useRef<() => void>(() => {})
-  // Guards against being stuck on "connecting" indefinitely: if WebRTC never
-  // negotiates (NAT/P2P fail, other side not ready, media not granted), we
-  // abort and re-enter the search queue so the user is never stuck.
-  const connectingSinceRef = useRef(0)
-
   const socketService = useSocket({
     onMatched: useCallback((data: any) => {
       const peerId = typeof data === 'string' ? data : data?.peerId
@@ -86,12 +104,6 @@ export default function Home() {
 
     onSignal: useCallback((data) => {
       handleIncomingSignalRef.current(data)
-    }, []),
-
-    onChatMessage: useCallback((data) => {
-    }, []),
-
-    onTyping: useCallback(() => {
     }, []),
 
     onPeerDisconnected: useCallback(() => {
@@ -360,7 +372,7 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center gap-2 pointer-events-auto">
-            <span className="text-sm md:text-base font-bold text-white tracking-wide">MEETUP<span className="text-purple-400">.HERE</span></span>
+            <span className="text-sm md:text-base font-bold text-white tracking-wide">VIBELINK<span className="text-purple-400">.LIVE</span></span>
             {userCount > 0 && (
               <span className="text-[10px] md:text-xs text-white/50 bg-white/10 rounded-full px-2 py-0.5 backdrop-blur-sm">
                 {userCount} online

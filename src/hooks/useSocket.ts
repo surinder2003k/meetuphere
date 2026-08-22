@@ -7,8 +7,6 @@ import type { UserProfile } from '@/types'
 interface UseSocketOptions {
   onMatched: (data: { peerId: string; initiator: boolean }) => void
   onSignal: (data: { signal: any; sender: string }) => void
-  onChatMessage: (data: any) => void
-  onTyping: (data: { sender: string }) => void
   onPeerDisconnected: () => void
   onPeerLeft: () => void
   onNoPeers: () => void
@@ -36,14 +34,6 @@ export function useSocket(options: UseSocketOptions) {
 
     socket.on('signal', (data) => {
       optionsRef.current.onSignal(data)
-    })
-
-    socket.on('chat-message', (data) => {
-      optionsRef.current.onChatMessage(data)
-    })
-
-    socket.on('typing', (data) => {
-      optionsRef.current.onTyping(data)
     })
 
     socket.on('peer-disconnected', () => {
@@ -87,14 +77,6 @@ export function useSocket(options: UseSocketOptions) {
     socketRef.current?.emit('signal', data)
   }, [])
 
-  const sendChatMessage = useCallback((data: { content: string; target: string }) => {
-    socketRef.current?.emit('chat-message', data)
-  }, [])
-
-  const sendTyping = useCallback((data: { target: string }) => {
-    socketRef.current?.emit('typing', data)
-  }, [])
-
   const skip = useCallback(() => {
     socketRef.current?.emit('skip')
   }, [])
@@ -111,8 +93,6 @@ export function useSocket(options: UseSocketOptions) {
     if (socketRef.current) {
       socketRef.current.off('matched')
       socketRef.current.off('signal')
-      socketRef.current.off('chat-message')
-      socketRef.current.off('typing')
       socketRef.current.off('peer-disconnected')
       socketRef.current.off('peer-left')
       socketRef.current.off('no-peers')
@@ -128,8 +108,6 @@ export function useSocket(options: UseSocketOptions) {
     connect,
     findPeer,
     sendSignal,
-    sendChatMessage,
-    sendTyping,
     skip,
     report,
     stopSearching,

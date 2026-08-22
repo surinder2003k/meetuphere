@@ -13,10 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MeetUpHere — Random Video Chat",
+  title: "VibeLink — Random Video Chat",
   description: "Connect with random people instantly. Video chat with strangers. Fast, smooth, and addictive.",
   openGraph: {
-    title: "MeetUpHere",
+    title: "VibeLink",
     description: "Random video chat. Connect instantly.",
   },
 };

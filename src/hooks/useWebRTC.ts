@@ -3,16 +3,18 @@
 import { useState, useRef, useCallback } from 'react'
 import SimplePeer from 'simple-peer'
 import type { UserProfile, ChatMessage } from '@/types'
+import { getIceServers } from '@/lib/iceServers'
 
 interface WebRTCHooksOptions {
   localStream: MediaStream | null
   profile: UserProfile
   onPeerSignal: (data: { signal: any; target: string }) => void
   onConnected: () => void
+  onConnectionFailed?: () => void
   onScreenShareEnded?: () => void
 }
 
-export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onScreenShareEnded }: WebRTCHooksOptions) {
+export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onConnectionFailed, onScreenShareEnded }: WebRTCHooksOptions) {
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null)
   const [peerName, setPeerName] = useState('Stranger')
   const [peerGender, setPeerGender] = useState('unknown')
@@ -31,6 +33,8 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onS
   onPeerSignalRef.current = onPeerSignal
   const onConnectedRef = useRef(onConnected)
   onConnectedRef.current = onConnected
+  const onConnectionFailedRef = useRef(onConnectionFailed)
+  onConnectionFailedRef.current = onConnectionFailed
   const onScreenShareEndedRef = useRef(onScreenShareEnded)
   onScreenShareEndedRef.current = onScreenShareEnded
   const localStreamRef = useRef(localStream)
@@ -65,15 +69,18 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onS
       stream,
       trickle: true,
       config: {
-        iceServers: [
-          { urls: 'stun:stun.l.google.com:19302' },
-          { urls: 'stun:stun1.l.google.com:19302' },
-          { urls: 'stun:stun2.l.google.com:19302' },
-          { urls: 'stun:stun3.l.google.com:19302' },
-          { urls: 'stun:stun4.l.google.com:19302' },
-        ],
+        iceServers: getIceServers(),
       },
     })
+
+    // Fire onConnectionFailed exactly once per peer when the connection dies
+    // (ICE failed, network error, peer gone) so the app can requeue fast
+    // instead of waiting for the 20s connect watchdog.
+    const failConnection = (reason: string) => {
+      if (peerRef.current !== peer || connectedRef.current) return
+      console.warn('[WebRTC] Connection failed:', reason)
+      onConnectionFailedRef.current?.()
+    }
 
     peer.on('signal', (signal) => {
       if (signal.type === 'candidate' && !signal.candidate) return
@@ -135,6 +142,31 @@ export function useWebRTC({ localStream, profile, onPeerSignal, onConnected, onS
 
     peer.on('error', (err) => {
       console.error('[WebRTC] Peer error:', err.message)
+      // 'peer-unavailable' = other side vanished mid-negotiation; network errors
+      // surface as ICE failures below. Anything else fatal -> fail fast.
+      if ((err as any).type === 'peer-unavailable') {
+        failConnection(err.message)
+      }
+    })
+
+    // Watch the underlying RTCPeerConnection for ICE failures so we recover
+    // quickly instead of hanging on "connecting" until the watchdog fires.
+    const pc = (peer as any)._pc as RTCPeerConnection | undefined
+    pc?.addEventListener('iceconnectionstatechange', () => {
+      const state = pc.iceConnectionState
+      console.log('[WebRTC] ICE state:', state)
+      if (state === 'failed' || state === 'closed') {
+        failConnection(`ICE ${state}`)
+      } else if (state === 'disconnected') {
+        // Give ICE a short grace period to self-heal before declaring failure.
+        setTimeout(() => {
+          const current = (peerRef.current as any)?._pc as RTCPeerConnection | undefined
+          const s = current?.iceConnectionState
+          if (s === 'disconnected' || s === 'failed' || s === 'closed' || s === undefined) {
+            failConnection(`ICE still ${s ?? 'gone'} after grace period`)
+          }
+        }, 4000)
+      }
     })
 
     peerRef.current = peer
