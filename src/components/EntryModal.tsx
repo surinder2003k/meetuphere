@@ -12,8 +12,7 @@ interface EntryModalProps {
 export default function EntryModal({ onSubmit }: EntryModalProps) {
   const [name, setName] = useState('')
   const [gender, setGender] = useState<UserProfile['gender'] | ''>('')
-  const [lookingFor, setLookingFor] = useState<UserProfile['lookingFor']>('opposite')
-  const [ageConfirmed, setAgeConfirmed] = useState(false)
+  const [lookingFor, setLookingFor] = useState<UserProfile['lookingFor']>('any')
   const [hasStarted, setHasStarted] = useState(false)
 
   useEffect(() => {
@@ -29,7 +28,7 @@ export default function EntryModal({ onSubmit }: EntryModalProps) {
   }, [onSubmit])
 
   const handleSubmit = () => {
-    if (!name.trim() || !gender || !ageConfirmed || hasStarted) return
+    if (!name.trim() || !gender || hasStarted) return
     setHasStarted(true)
     const profile: UserProfile = {
       name: name.trim(),
@@ -101,8 +100,8 @@ export default function EntryModal({ onSubmit }: EntryModalProps) {
           <div className="grid grid-cols-3 gap-2">
             {([
               { value: 'any', label: 'Anyone' },
-              { value: 'opposite', label: 'Opposite' },
-              { value: 'same', label: 'Same' },
+              { value: 'male', label: 'Male' },
+              { value: 'female', label: 'Female' },
             ] as const).map((o) => (
               <button
                 key={o.value}
@@ -120,31 +119,15 @@ export default function EntryModal({ onSubmit }: EntryModalProps) {
         </div>
 
         {/* Permissions notice */}
-        <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3 mb-5">
+        <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-3 mb-8">
           <Video className="w-5 h-5 text-white/40 shrink-0" />
           <p className="text-white/35 text-xs leading-relaxed">Camera and microphone access required to start chatting.</p>
         </div>
 
-        {/* 18+ age gate */}
-        <label className="flex items-start gap-3 mb-6 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={ageConfirmed}
-            onChange={(e) => setAgeConfirmed(e.target.checked)}
-            className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 accent-purple-500 shrink-0"
-          />
-          <span className="text-white/40 text-xs leading-relaxed">
-            I confirm I am <span className="text-white/70 font-semibold">18 years or older</span> and agree to the{' '}
-            <span className="underline cursor-pointer hover:text-white/60 transition-colors">Terms</span> &{' '}
-            <span className="underline cursor-pointer hover:text-white/60 transition-colors">Community Guidelines</span>.
-            You may encounter unfiltered content from strangers.
-          </span>
-        </label>
-
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          disabled={!name.trim() || !gender || !ageConfirmed || hasStarted}
+          disabled={!name.trim() || !gender || hasStarted}
           className="w-full py-3.5 rounded-xl bg-white text-black text-sm font-semibold hover:bg-white/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           Start Random Chat ✨

@@ -7,7 +7,7 @@ const VALID_GENDERS = ['male', 'female', 'other', 'prefer-not-to-say'] as const
 interface PeerProfile {
   name: string
   gender: string
-  lookingFor: 'any' | 'opposite' | 'same'
+  lookingFor: 'any' | 'male' | 'female'
 }
 
 interface WaitingPeer {
@@ -59,7 +59,7 @@ function sanitizeProfile(raw: any): PeerProfile | null {
     typeof raw.name === 'string' ? raw.name.replace(/\s+/g, ' ').trim().slice(0, 30) : ''
   const gender = VALID_GENDERS.includes(raw.gender) ? raw.gender : null
   if (!name || !gender) return null
-  const lookingFor = ['any', 'opposite', 'same'].includes(raw.lookingFor) ? raw.lookingFor : 'opposite'
+  const lookingFor = ['any', 'male', 'female'].includes(raw.lookingFor) ? raw.lookingFor : 'any'
   return { name, gender, lookingFor }
 }
 
@@ -103,17 +103,9 @@ function findTarget(me: WaitingPeer): WaitingPeer | null {
   if (available.length === 0) return null
 
   const pref = me.profile.lookingFor
-  let preferredGender: string | null = null
-  if (pref === 'opposite') {
-    preferredGender =
-      me.profile.gender === 'male'
-        ? 'female'
-        : me.profile.gender === 'female'
-          ? 'male'
-          : null
-  } else if (pref === 'same') {
-    preferredGender = me.profile.gender
-  }
+  // 'male' / 'female' => user wants to chat with that specific gender.
+  // 'any' (or unspecified) => no gender preference.
+  const preferredGender = pref === 'male' || pref === 'female' ? pref : null
 
   if (preferredGender) {
     const match = available.find((p) => p.profile.gender === preferredGender)

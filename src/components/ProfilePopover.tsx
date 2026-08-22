@@ -15,7 +15,7 @@ interface ProfilePopoverProps {
 export default function ProfilePopover({ profile, onUpdate, onDisconnect }: ProfilePopoverProps) {
   const [name, setName] = useState(profile.name)
   const [gender, setGender] = useState(profile.gender)
-  const [lookingFor, setLookingFor] = useState<UserProfile['lookingFor']>(profile.lookingFor || 'opposite')
+  const [lookingFor, setLookingFor] = useState<UserProfile['lookingFor']>(profile.lookingFor || 'any')
   const [open, setOpen] = useState(false)
 
   const handleSave = () => {
@@ -85,8 +85,8 @@ export default function ProfilePopover({ profile, onUpdate, onDisconnect }: Prof
                       className="w-full bg-surface border border-border rounded-lg py-2 px-3 text-sm text-foreground focus:outline-none focus:border-primary"
                     >
                       <option value="any">Anyone</option>
-                      <option value="opposite">Opposite gender</option>
-                      <option value="same">Same gender</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
                     </select>
                   </div>
                 </div>

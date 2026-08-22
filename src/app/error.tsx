@@ -20,6 +20,9 @@ export default function Error({
         <p className="text-text-muted text-sm mb-6">
           The app hit an unexpected error. Your camera and mic are safe — try again.
         </p>
+        {error?.message ? (
+          <p className="text-white/30 text-[11px] font-mono mb-6 break-words">{error.message}</p>
+        ) : null}
         <button
           onClick={reset}
           className="w-full py-2.5 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-all"
